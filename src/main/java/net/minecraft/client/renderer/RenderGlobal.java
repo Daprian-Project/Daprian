@@ -89,7 +89,6 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityWitherSkull;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -117,6 +116,8 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
+import project.daprian.client.Main;
+import project.daprian.client.modules.VanillaTweaks;
 
 public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListener
 {
@@ -648,6 +649,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
     {
         int i = 0;
 
+        Frustum frustum = new Frustum();
+        frustum.setPosition(renderViewEntity.lastTickPosX, renderViewEntity.lastTickPosY, renderViewEntity.lastTickPosZ);
+
         if (Reflector.MinecraftForgeClient_getRenderPass.exists())
         {
             i = Reflector.callInt(Reflector.MinecraftForgeClient_getRenderPass, new Object[0]);
@@ -781,59 +785,45 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 {
                     Iterator iterator = classinheritancemultimap.iterator();
 
-                    while (true)
+                    while (iterator.hasNext())
                     {
-                        Entity entity2;
-                        boolean flag4;
+                        Entity entity2 = (Entity) iterator.next();
 
-                        while (true)
+                        VanillaTweaks vanillaTweaks = (VanillaTweaks) Main.getInstance().getModuleManager().getModule(VanillaTweaks.class);
+
+                        int chunkX = chunk.xPosition;
+                        int chunkZ = chunk.zPosition;
+
+                        double chunkRenderDistance = vanillaTweaks.getEntityCullingDistance().getValue();
+                        int deltaX = chunkX - (int)(renderViewEntity.posX / 16);
+                        int deltaZ = chunkZ - (int)(renderViewEntity.posZ / 16);
+                        double distanceSq = deltaX * deltaX + deltaZ * deltaZ;
+
+                        if (frustum.isBoundingBoxInFrustum(entity2.getEntityBoundingBox()) && distanceSq <= chunkRenderDistance * chunkRenderDistance)
                         {
-                            if (!iterator.hasNext())
+                            boolean flag4 = this.renderManager.shouldRender(entity2, camera, d0, d1, d2) || entity2.riddenByEntity == this.mc.thePlayer;
+
+                            if (!flag4)
                             {
-                                continue label926;
+                                continue;
                             }
 
-                            entity2 = (Entity)iterator.next();
+                            boolean flag5 = this.mc.getRenderViewEntity() instanceof EntityLivingBase ? ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping() : false;
 
-                            if (!flag || Reflector.callBoolean(entity2, Reflector.ForgeEntity_shouldRenderInPass, new Object[] {Integer.valueOf(i)}))
+                            if ((entity2 != this.mc.getRenderViewEntity() || flag8 || this.mc.gameSettings.showDebugInfo != 0 || flag5) && (entity2.posY < 0.0D || entity2.posY >= 256.0D || this.theWorld.isBlockLoaded(new BlockPos(entity2))))
                             {
-                                flag4 = this.renderManager.shouldRender(entity2, camera, d0, d1, d2) || entity2.riddenByEntity == this.mc.thePlayer;
+                                ++this.countEntitiesRendered;
+                                this.renderedEntity = entity2;
 
-                                if (!flag4)
+                                if (flag6)
                                 {
-                                    break;
+                                    Shaders.nextEntity(entity2);
                                 }
 
-                                boolean flag5 = this.mc.getRenderViewEntity() instanceof EntityLivingBase ? ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping() : false;
-
-                                if ((entity2 != this.mc.getRenderViewEntity() || flag8 || this.mc.gameSettings.showDebugInfo != 0 || flag5) && (entity2.posY < 0.0D || entity2.posY >= 256.0D || this.theWorld.isBlockLoaded(new BlockPos(entity2))))
-                                {
-                                    ++this.countEntitiesRendered;
-                                    this.renderedEntity = entity2;
-
-                                    if (flag6)
-                                    {
-                                        Shaders.nextEntity(entity2);
-                                    }
-
-                                    this.renderManager.renderEntitySimple(entity2, partialTicks);
-                                    this.renderedEntity = null;
-                                    break;
-                                }
+                                // Render the entity
+                                this.renderManager.renderEntitySimple(entity2, partialTicks);
+                                this.renderedEntity = null;
                             }
-                        }
-
-                        if (!flag4 && entity2 instanceof EntityWitherSkull && (!flag || Reflector.callBoolean(entity2, Reflector.ForgeEntity_shouldRenderInPass, new Object[] {Integer.valueOf(i)})))
-                        {
-                            this.renderedEntity = entity2;
-
-                            if (flag6)
-                            {
-                                Shaders.nextEntity(entity2);
-                            }
-
-                            this.mc.getRenderManager().renderWitherSkull(entity2, partialTicks);
-                            this.renderedEntity = null;
                         }
                     }
                 }
@@ -1642,9 +1632,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 {
                     Vec3 vec3 = new Vec3((double)j / 255.0D, (double)k / 255.0D, (double)l / 255.0D);
                     vec3 = CustomColors.getWorldSkyColor(vec3, this.theWorld, this.mc.getRenderViewEntity(), 0.0F);
-                    j = (int)(vec3.xCoord * 255.0D);
-                    k = (int)(vec3.yCoord * 255.0D);
-                    l = (int)(vec3.zCoord * 255.0D);
+                    j = (int)(vec3.x * 255.0D);
+                    k = (int)(vec3.y * 255.0D);
+                    l = (int)(vec3.z * 255.0D);
                 }
 
                 worldrenderer.pos(-100.0D, -100.0D, -100.0D).tex(0.0D, 0.0D).color(j, k, l, 255).endVertex();
@@ -1698,9 +1688,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 Shaders.setSkyColor(vec3);
             }
 
-            float f = (float)vec3.xCoord;
-            float f1 = (float)vec3.yCoord;
-            float f2 = (float)vec3.zCoord;
+            float f = (float)vec3.x;
+            float f1 = (float)vec3.y;
+            float f2 = (float)vec3.z;
 
             if (pass != 2)
             {
@@ -1911,7 +1901,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
             }
 
             GlStateManager.color(0.0F, 0.0F, 0.0F);
-            double d0 = this.mc.thePlayer.getPositionEyes(partialTicks).yCoord - this.theWorld.getHorizon();
+            double d0 = this.mc.thePlayer.getPositionEyes(partialTicks).y - this.theWorld.getHorizon();
 
             if (d0 < 0.0D)
             {
@@ -2047,9 +2037,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                     GlStateManager.enableBlend();
                     GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
                     Vec3 vec3 = this.theWorld.getCloudColour(partialTicks);
-                    float f = (float)vec3.xCoord;
-                    float f1 = (float)vec3.yCoord;
-                    float f2 = (float)vec3.zCoord;
+                    float f = (float)vec3.x;
+                    float f1 = (float)vec3.y;
+                    float f2 = (float)vec3.z;
                     this.cloudRenderer.prepareToRender(false, this.cloudTickCounter, f9, vec3);
 
                     if (this.cloudRenderer.shouldUpdateGlList())
@@ -2139,9 +2129,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         Vec3 vec3 = this.theWorld.getCloudColour(partialTicks);
-        float f4 = (float)vec3.xCoord;
-        float f5 = (float)vec3.yCoord;
-        float f6 = (float)vec3.zCoord;
+        float f4 = (float)vec3.x;
+        float f5 = (float)vec3.y;
+        float f6 = (float)vec3.z;
         this.cloudRenderer.prepareToRender(true, this.cloudTickCounter, partialTicks, vec3);
 
         if (pass != 2)

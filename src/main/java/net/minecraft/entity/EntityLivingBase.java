@@ -12,6 +12,7 @@ import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.BaseAttributeMap;
@@ -50,6 +51,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import project.daprian.client.Main;
+import project.daprian.client.events.JumpEvent;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -1010,7 +1013,7 @@ public abstract class EntityLivingBase extends Entity
             vec31 = vec31.rotatePitch(-this.rotationPitch * (float)Math.PI / 180.0F);
             vec31 = vec31.rotateYaw(-this.rotationYaw * (float)Math.PI / 180.0F);
             vec31 = vec31.addVector(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ);
-            this.worldObj.spawnParticle(EnumParticleTypes.ITEM_CRACK, vec31.xCoord, vec31.yCoord, vec31.zCoord, vec3.xCoord, vec3.yCoord + 0.05D, vec3.zCoord, new int[] {Item.getIdFromItem(stack.getItem())});
+            this.worldObj.spawnParticle(EnumParticleTypes.ITEM_CRACK, vec31.x, vec31.y, vec31.z, vec3.x, vec3.y + 0.05D, vec3.z, new int[] {Item.getIdFromItem(stack.getItem())});
         }
     }
 
@@ -1566,7 +1569,15 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void jump()
     {
-        this.motionY = (double)this.getJumpUpwardsMotion();
+        this.motionY = this.getJumpUpwardsMotion();
+        float yaw = this.rotationYaw;
+
+        if(this instanceof EntityPlayerSP) {
+            JumpEvent eventJump = new JumpEvent(motionY, yaw);
+            Main.getInstance().getPubSub().publish(eventJump);
+            motionY = eventJump.getMotion();
+            yaw = eventJump.getYaw();
+        }
 
         if (this.isPotionActive(Potion.jump))
         {
@@ -1575,7 +1586,7 @@ public abstract class EntityLivingBase extends Entity
 
         if (this.isSprinting())
         {
-            float f = this.rotationYaw * 0.017453292F;
+            float f = yaw * 0.017453292F;
             this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
             this.motionZ += (double)(MathHelper.cos(f) * 0.2F);
         }

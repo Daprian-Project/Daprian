@@ -1,6 +1,7 @@
 package project.daprian.systems.module;
 
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import project.daprian.client.Main;
 import project.daprian.systems.setting.Bind;
 import project.daprian.systems.setting.Setting;
@@ -17,6 +18,7 @@ public class Module {
     private final String description;
     private final Category category;
     private final Setting<Bind> bind;
+    protected final Minecraft mc = Minecraft.getMinecraft();
 
     private final ArrayList<Setting<?>> settings = new ArrayList<>();
     private boolean enabled;

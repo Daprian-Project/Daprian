@@ -54,9 +54,9 @@ public class C02PacketUseEntity implements Packet<INetHandlerPlayServer>
 
         if (this.action == C02PacketUseEntity.Action.INTERACT_AT)
         {
-            buf.writeFloat((float)this.hitVec.xCoord);
-            buf.writeFloat((float)this.hitVec.yCoord);
-            buf.writeFloat((float)this.hitVec.zCoord);
+            buf.writeFloat((float)this.hitVec.x);
+            buf.writeFloat((float)this.hitVec.y);
+            buf.writeFloat((float)this.hitVec.z);
         }
     }
 

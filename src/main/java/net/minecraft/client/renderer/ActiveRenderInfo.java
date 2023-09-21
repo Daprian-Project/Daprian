@@ -75,9 +75,9 @@ public class ActiveRenderInfo
         double d0 = p_178806_0_.prevPosX + (p_178806_0_.posX - p_178806_0_.prevPosX) * p_178806_1_;
         double d1 = p_178806_0_.prevPosY + (p_178806_0_.posY - p_178806_0_.prevPosY) * p_178806_1_;
         double d2 = p_178806_0_.prevPosZ + (p_178806_0_.posZ - p_178806_0_.prevPosZ) * p_178806_1_;
-        double d3 = d0 + position.xCoord;
-        double d4 = d1 + position.yCoord;
-        double d5 = d2 + position.zCoord;
+        double d3 = d0 + position.x;
+        double d4 = d1 + position.y;
+        double d5 = d2 + position.z;
         return new Vec3(d3, d4, d5);
     }
 
@@ -99,7 +99,7 @@ public class ActiveRenderInfo
 
             float f1 = (float)(blockpos.getY() + 1) - f;
 
-            if (vec3.yCoord >= (double)f1)
+            if (vec3.y >= (double)f1)
             {
                 block = worldIn.getBlockState(blockpos.up()).getBlock();
             }

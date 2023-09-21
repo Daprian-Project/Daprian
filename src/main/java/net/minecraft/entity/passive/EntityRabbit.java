@@ -192,7 +192,7 @@ public class EntityRabbit extends EntityAnimal
                         vec3 = pathentity.getPosition(this);
                     }
 
-                    this.calculateRotationYaw(vec3.xCoord, vec3.zCoord);
+                    this.calculateRotationYaw(vec3.x, vec3.z);
                     this.doMovementAction(this.moveType);
                 }
             }

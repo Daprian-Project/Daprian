@@ -48,21 +48,21 @@ public class CommandPlaySound extends CommandBase
             String s = args[i++];
             EntityPlayerMP entityplayermp = getPlayer(sender, args[i++]);
             Vec3 vec3 = sender.getPositionVector();
-            double d0 = vec3.xCoord;
+            double d0 = vec3.x;
 
             if (args.length > i)
             {
                 d0 = parseDouble(d0, args[i++], true);
             }
 
-            double d1 = vec3.yCoord;
+            double d1 = vec3.y;
 
             if (args.length > i)
             {
                 d1 = parseDouble(d1, args[i++], 0, 0, false);
             }
 
-            double d2 = vec3.zCoord;
+            double d2 = vec3.z;
 
             if (args.length > i)
             {

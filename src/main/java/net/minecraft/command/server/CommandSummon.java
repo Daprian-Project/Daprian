@@ -58,9 +58,9 @@ public class CommandSummon extends CommandBase
             String s = args[0];
             BlockPos blockpos = sender.getPosition();
             Vec3 vec3 = sender.getPositionVector();
-            double d0 = vec3.xCoord;
-            double d1 = vec3.yCoord;
-            double d2 = vec3.zCoord;
+            double d0 = vec3.x;
+            double d1 = vec3.y;
+            double d2 = vec3.z;
 
             if (args.length >= 4)
             {

@@ -96,6 +96,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
+import project.daprian.client.Main;
+import project.daprian.client.modules.VanillaTweaks;
 
 public class EntityRenderer implements IResourceManagerReloadListener
 {
@@ -490,11 +492,11 @@ public class EntityRenderer implements IResourceManagerReloadListener
             }
 
             Vec3 vec31 = entity.getLook(partialTicks);
-            Vec3 vec32 = vec3.addVector(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0);
+            Vec3 vec32 = vec3.addVector(vec31.x * d0, vec31.y * d0, vec31.z * d0);
             this.pointedEntity = null;
             Vec3 vec33 = null;
             float f = 1.0F;
-            List<Entity> list = this.mc.theWorld.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().addCoord(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0).expand((double)f, (double)f, (double)f), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>()
+            List<Entity> list = this.mc.theWorld.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().addCoord(vec31.x * d0, vec31.y * d0, vec31.z * d0).expand((double)f, (double)f, (double)f), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>()
             {
                 public boolean apply(Entity p_apply_1_)
                 {
@@ -674,6 +676,11 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
     private void hurtCameraEffect(float partialTicks)
     {
+        VanillaTweaks vanillaTweaks = (VanillaTweaks) Main.getInstance().getModuleManager().getModule(VanillaTweaks.class);
+
+        if (!vanillaTweaks.getHurtCam().getValue())
+            return;
+
         if (this.mc.getRenderViewEntity() instanceof EntityLivingBase)
         {
             EntityLivingBase entitylivingbase = (EntityLivingBase)this.mc.getRenderViewEntity();
@@ -704,17 +711,35 @@ public class EntityRenderer implements IResourceManagerReloadListener
      */
     private void setupViewBobbing(float partialTicks)
     {
+        VanillaTweaks vanillaTweaks = (VanillaTweaks) Main.getInstance().getModuleManager().getModule(VanillaTweaks.class);
+
         if (this.mc.getRenderViewEntity() instanceof EntityPlayer)
         {
             EntityPlayer entityplayer = (EntityPlayer)this.mc.getRenderViewEntity();
-            float f = entityplayer.distanceWalkedModified - entityplayer.prevDistanceWalkedModified;
-            float f1 = -(entityplayer.distanceWalkedModified + f * partialTicks);
-            float f2 = entityplayer.prevCameraYaw + (entityplayer.cameraYaw - entityplayer.prevCameraYaw) * partialTicks;
-            float f3 = entityplayer.prevCameraPitch + (entityplayer.cameraPitch - entityplayer.prevCameraPitch) * partialTicks;
+            float distanceWalked = entityplayer.distanceWalkedModified - entityplayer.prevDistanceWalkedModified;
+            float f1 = -(entityplayer.distanceWalkedModified + distanceWalked * partialTicks);
+            float cameraYaw = entityplayer.prevCameraYaw + (entityplayer.cameraYaw - entityplayer.prevCameraYaw) * partialTicks;
+            float cameraPitch = entityplayer.prevCameraPitch + (entityplayer.cameraPitch - entityplayer.prevCameraPitch) * partialTicks;
+
+            float horizontal = vanillaTweaks.getHorizontalBob().getValue().floatValue();
+            float vertical = vanillaTweaks.getVerticalBob().getValue().floatValue();
+
+            float translationX = MathHelper.sin(f1 * (float)Math.PI) * cameraYaw * horizontal;
+            float translationY = -Math.abs(MathHelper.cos(f1 * (float)Math.PI) * cameraYaw) * vertical;
+            float rotation1 = MathHelper.sin(f1 * (float)Math.PI) * cameraYaw * (horizontal * 3.0F);
+            float rotation2 = Math.abs(MathHelper.cos(f1 * (float)Math.PI - 0.2F) * cameraYaw) * (vertical * 4.0F);
+
+            /*
             GlStateManager.translate(MathHelper.sin(f1 * (float)Math.PI) * f2 * 0.5F, -Math.abs(MathHelper.cos(f1 * (float)Math.PI) * f2), 0.0F);
             GlStateManager.rotate(MathHelper.sin(f1 * (float)Math.PI) * f2 * 3.0F, 0.0F, 0.0F, 1.0F);
             GlStateManager.rotate(Math.abs(MathHelper.cos(f1 * (float)Math.PI - 0.2F) * f2) * 5.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.rotate(f3, 1.0F, 0.0F, 0.0F);
+             */
+
+            GlStateManager.translate(translationX, translationY, 0.0F);
+            GlStateManager.rotate(rotation1, 0.0F, 0.0F, 1.0F);
+            GlStateManager.rotate(rotation2, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(cameraPitch, 1.0F, 0.0F, 0.0F);
         }
     }
 
@@ -913,7 +938,10 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
         if (this.mc.gameSettings.viewBobbing)
         {
-            this.setupViewBobbing(partialTicks);
+            VanillaTweaks vanillaTweaks = (VanillaTweaks) Main.getInstance().getModuleManager().getModule(VanillaTweaks.class);
+
+            if (vanillaTweaks.getCamBobbing().getValue())
+                this.setupViewBobbing(partialTicks);
         }
 
         float f1 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * partialTicks;
@@ -2224,14 +2252,14 @@ public class EntityRenderer implements IResourceManagerReloadListener
         f = 1.0F - (float)Math.pow((double)f, 0.25D);
         Vec3 vec3 = world.getSkyColor(this.mc.getRenderViewEntity(), partialTicks);
         vec3 = CustomColors.getWorldSkyColor(vec3, world, this.mc.getRenderViewEntity(), partialTicks);
-        float f1 = (float)vec3.xCoord;
-        float f2 = (float)vec3.yCoord;
-        float f3 = (float)vec3.zCoord;
+        float f1 = (float)vec3.x;
+        float f2 = (float)vec3.y;
+        float f3 = (float)vec3.z;
         Vec3 vec31 = world.getFogColor(partialTicks);
         vec31 = CustomColors.getWorldFogColor(vec31, world, this.mc.getRenderViewEntity(), partialTicks);
-        this.fogColorRed = (float)vec31.xCoord;
-        this.fogColorGreen = (float)vec31.yCoord;
-        this.fogColorBlue = (float)vec31.zCoord;
+        this.fogColorRed = (float)vec31.x;
+        this.fogColorGreen = (float)vec31.y;
+        this.fogColorBlue = (float)vec31.z;
 
         if (this.mc.gameSettings.renderDistanceChunks >= 4)
         {
@@ -2287,9 +2315,9 @@ public class EntityRenderer implements IResourceManagerReloadListener
         if (this.cloudFog)
         {
             Vec3 vec33 = world.getCloudColour(partialTicks);
-            this.fogColorRed = (float)vec33.xCoord;
-            this.fogColorGreen = (float)vec33.yCoord;
-            this.fogColorBlue = (float)vec33.zCoord;
+            this.fogColorRed = (float)vec33.x;
+            this.fogColorGreen = (float)vec33.y;
+            this.fogColorBlue = (float)vec33.z;
         }
         else if (block.getMaterial() == Material.water)
         {
@@ -2308,9 +2336,9 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
             if (vec35 != null)
             {
-                this.fogColorRed = (float)vec35.xCoord;
-                this.fogColorGreen = (float)vec35.yCoord;
-                this.fogColorBlue = (float)vec35.zCoord;
+                this.fogColorRed = (float)vec35.x;
+                this.fogColorGreen = (float)vec35.y;
+                this.fogColorBlue = (float)vec35.z;
             }
         }
         else if (block.getMaterial() == Material.lava)
@@ -2322,9 +2350,9 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
             if (vec34 != null)
             {
-                this.fogColorRed = (float)vec34.xCoord;
-                this.fogColorGreen = (float)vec34.yCoord;
-                this.fogColorBlue = (float)vec34.zCoord;
+                this.fogColorRed = (float)vec34.x;
+                this.fogColorGreen = (float)vec34.y;
+                this.fogColorBlue = (float)vec34.z;
             }
         }
 

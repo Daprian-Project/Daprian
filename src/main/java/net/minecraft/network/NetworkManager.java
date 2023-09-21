@@ -48,6 +48,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import project.daprian.client.events.PacketEvent;
+import project.daprian.systems.event.State;
 
 public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
@@ -152,7 +154,12 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         {
             try
             {
-                p_channelRead0_2_.processPacket(this.packetListener);
+                PacketEvent packetEvent = new PacketEvent(State.Post, p_channelRead0_2_);
+
+                if (packetEvent.isCancelled())
+                    return;
+
+                packetEvent.getPacket().processPacket(this.packetListener);
             }
             catch (ThreadQuickExitException var4)
             {
@@ -177,7 +184,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();
-            this.dispatchPacket(packetIn, (GenericFutureListener <? extends Future <? super Void >> [])null);
+            this.dispatchPacket(packetIn, null);
         }
         else
         {

@@ -39,9 +39,9 @@ public class EntityAIMoveTowardsRestriction extends EntityAIBase
             }
             else
             {
-                this.movePosX = vec3.xCoord;
-                this.movePosY = vec3.yCoord;
-                this.movePosZ = vec3.zCoord;
+                this.movePosX = vec3.x;
+                this.movePosY = vec3.y;
+                this.movePosZ = vec3.z;
                 return true;
             }
         }

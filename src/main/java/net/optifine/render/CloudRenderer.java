@@ -51,15 +51,15 @@ public class CloudRenderer
         {
             return true;
         }
-        else if (Math.abs(this.cloudColor.xCoord - this.updateCloudColor.xCoord) > 0.003D)
+        else if (Math.abs(this.cloudColor.x - this.updateCloudColor.x) > 0.003D)
         {
             return true;
         }
-        else if (Math.abs(this.cloudColor.yCoord - this.updateCloudColor.yCoord) > 0.003D)
+        else if (Math.abs(this.cloudColor.y - this.updateCloudColor.y) > 0.003D)
         {
             return true;
         }
-        else if (Math.abs(this.cloudColor.zCoord - this.updateCloudColor.zCoord) > 0.003D)
+        else if (Math.abs(this.cloudColor.z - this.updateCloudColor.z) > 0.003D)
         {
             return true;
         }

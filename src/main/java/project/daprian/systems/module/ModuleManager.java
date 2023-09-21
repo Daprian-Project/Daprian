@@ -3,7 +3,9 @@ package project.daprian.systems.module;
 import lombok.Getter;
 import me.daprian.tasks.Tasked;
 import project.daprian.client.Main;
-import project.daprian.client.modules.BaseModule;
+import project.daprian.client.modules.KillAura;
+import project.daprian.client.modules.TestThing;
+import project.daprian.client.modules.VanillaTweaks;
 import project.daprian.systems.setting.Setting;
 
 import java.lang.reflect.Field;
@@ -15,8 +17,13 @@ public class ModuleManager {
 
     @Tasked(taskName = "Init Module Manager")
     public void Init() {
-        add(new BaseModule());
+        add(new VanillaTweaks());
+        add(new TestThing());
+        add(new KillAura());
+
         moduleHashMap.values().forEach(this::addOptionsFromFields);
+
+        getModule(VanillaTweaks.class).Toggle();
     }
 
     private void addOptionsFromFields(Module module) {
@@ -34,6 +41,10 @@ public class ModuleManager {
                 Main.getInstance().getLogger().error("Couldn't register option in " + module.getName());
             }
         }
+    }
+
+    public Module getModule(Class<? extends Module> clasz) {
+        return moduleHashMap.get(clasz);
     }
 
     private void add(Module module) {

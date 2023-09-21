@@ -12,6 +12,7 @@ import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockPattern;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
@@ -46,6 +47,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import project.daprian.client.Main;
+import project.daprian.client.events.StrafeEvent;
 
 public abstract class Entity implements ICommandSender
 {
@@ -1219,28 +1222,58 @@ public abstract class Entity implements ICommandSender
     }
 
     /**
-     * Used in both water and by flying objects
+     * Moves the entity in both water and by flying objects.
+     * @param strafe The strafing movement input.
+     * @param forward The forward movement input.
+     * @param friction The friction value.
      */
-    public void moveFlying(float strafe, float forward, float friction)
-    {
-        float f = strafe * strafe + forward * forward;
+    public void moveFlying(float strafe, float forward, float friction) {
+        if (this == Minecraft.getMinecraft().thePlayer) {
+            float yaw = this.rotationYaw;
 
-        if (f >= 1.0E-4F)
-        {
-            f = MathHelper.sqrt_float(f);
+            StrafeEvent event = new StrafeEvent(strafe, forward, friction, yaw);
+            Main.getInstance().getPubSub().publish(event);
 
-            if (f < 1.0F)
-            {
-                f = 1.0F;
+            strafe = event.getStrafe();
+            forward = event.getForward();
+            friction = event.getFriction();
+            yaw = event.getYaw();
+
+            float f = strafe * strafe + forward * forward;
+
+            if (f >= 1.0E-4F) {
+                f = MathHelper.sqrt_float(f);
+
+                if (f < 1.0F) {
+                    f = 1.0F;
+                }
+
+                f = friction / f;
+                strafe *= f;
+                forward *= f;
+                double f1 = Math.sin((yaw * Math.PI / 180.0F));
+                double f2 = Math.cos((yaw * Math.PI / 180.0F));
+                this.motionX += (strafe * f2 - forward * f1);
+                this.motionZ += (forward * f2 + strafe * f1);
             }
+        } else {
+            float f = strafe * strafe + forward * forward;
 
-            f = friction / f;
-            strafe = strafe * f;
-            forward = forward * f;
-            float f1 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
-            this.motionX += (double)(strafe * f2 - forward * f1);
-            this.motionZ += (double)(forward * f2 + strafe * f1);
+            if (f >= 1.0E-4F) {
+                f = MathHelper.sqrt_float(f);
+
+                if (f < 1.0F) {
+                    f = 1.0F;
+                }
+
+                f = friction / f;
+                strafe = strafe * f;
+                forward = forward * f;
+                float f1 = MathHelper.sin(this.rotationYaw * (float) Math.PI / 180.0F);
+                float f2 = MathHelper.cos(this.rotationYaw * (float) Math.PI / 180.0F);
+                this.motionX += strafe * f2 - forward * f1;
+                this.motionZ += forward * f2 + strafe * f1;
+            }
         }
     }
 
@@ -1501,7 +1534,7 @@ public abstract class Entity implements ICommandSender
     {
         Vec3 vec3 = this.getPositionEyes(partialTicks);
         Vec3 vec31 = this.getLook(partialTicks);
-        Vec3 vec32 = vec3.addVector(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance);
+        Vec3 vec32 = vec3.addVector(vec31.x * blockReachDistance, vec31.y * blockReachDistance, vec31.z * blockReachDistance);
         return this.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
     }
 

@@ -1195,9 +1195,9 @@ public class CustomColors
             float f = (float)j / 255.0F;
             float f1 = (float)k / 255.0F;
             float f2 = (float)l / 255.0F;
-            float f3 = (float)skyColor3d.xCoord / 0.5F;
-            float f4 = (float)skyColor3d.yCoord / 0.66275F;
-            float f5 = (float)skyColor3d.zCoord;
+            float f3 = (float)skyColor3d.x / 0.5F;
+            float f4 = (float)skyColor3d.y / 0.66275F;
+            float f5 = (float)skyColor3d.z;
             f = f * f3;
             f1 = f1 * f4;
             f2 = f2 * f5;
@@ -1221,9 +1221,9 @@ public class CustomColors
             float f = (float)j / 255.0F;
             float f1 = (float)k / 255.0F;
             float f2 = (float)l / 255.0F;
-            float f3 = (float)fogColor3d.xCoord / 0.753F;
-            float f4 = (float)fogColor3d.yCoord / 0.8471F;
-            float f5 = (float)fogColor3d.zCoord;
+            float f3 = (float)fogColor3d.x / 0.753F;
+            float f4 = (float)fogColor3d.y / 0.8471F;
+            float f5 = (float)fogColor3d.z;
             f = f * f3;
             f1 = f1 * f4;
             f2 = f2 * f5;

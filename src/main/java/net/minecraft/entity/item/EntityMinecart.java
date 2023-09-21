@@ -603,7 +603,7 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable
 
         if (vec31 != null && vec3 != null)
         {
-            double d14 = (vec3.yCoord - vec31.yCoord) * 0.05D;
+            double d14 = (vec3.y - vec31.y) * 0.05D;
             d5 = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
 
             if (d5 > 0.0D)
@@ -612,7 +612,7 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable
                 this.motionZ = this.motionZ / d5 * (d5 + d14);
             }
 
-            this.setPosition(this.posX, vec31.yCoord, this.posZ);
+            this.setPosition(this.posX, vec31.y, this.posZ);
         }
 
         int j = MathHelper.floor_double(this.posX);

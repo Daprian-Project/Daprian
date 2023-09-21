@@ -52,9 +52,9 @@ public class EntityAIWander extends EntityAIBase
         }
         else
         {
-            this.xPosition = vec3.xCoord;
-            this.yPosition = vec3.yCoord;
-            this.zPosition = vec3.zCoord;
+            this.xPosition = vec3.x;
+            this.yPosition = vec3.y;
+            this.zPosition = vec3.z;
             this.mustUpdate = false;
             return true;
         }

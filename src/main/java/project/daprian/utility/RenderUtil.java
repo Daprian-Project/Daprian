@@ -77,9 +77,9 @@ public class RenderUtil  {
     public static AxisAlignedBB getAxisAlignedBB(EntityLivingBase target) {
         Vec3 vec3 = getVec3(target);
 
-        float posX = (float)(vec3.xCoord - Minecraft.getMinecraft().getRenderManager().viewerPosX);
-        float posY = (float)(vec3.yCoord - Minecraft.getMinecraft().getRenderManager().viewerPosY);
-        float posZ = (float)(vec3.zCoord - Minecraft.getMinecraft().getRenderManager().viewerPosZ);
+        float posX = (float)(vec3.x - Minecraft.getMinecraft().getRenderManager().viewerPosX);
+        float posY = (float)(vec3.y - Minecraft.getMinecraft().getRenderManager().viewerPosY);
+        float posZ = (float)(vec3.z - Minecraft.getMinecraft().getRenderManager().viewerPosZ);
 
         double halfWidth = target.width / 2.0D + 0.18F;
 

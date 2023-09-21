@@ -240,7 +240,7 @@ public class EntityArrow extends Entity implements IProjectile
 
             if (movingobjectposition != null)
             {
-                vec3 = new Vec3(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+                vec3 = new Vec3(movingobjectposition.hitVec.x, movingobjectposition.hitVec.y, movingobjectposition.hitVec.z);
             }
 
             Entity entity = null;
@@ -372,9 +372,9 @@ public class EntityArrow extends Entity implements IProjectile
                     IBlockState iblockstate1 = this.worldObj.getBlockState(blockpos1);
                     this.inTile = iblockstate1.getBlock();
                     this.inData = this.inTile.getMetaFromState(iblockstate1);
-                    this.motionX = (double)((float)(movingobjectposition.hitVec.xCoord - this.posX));
-                    this.motionY = (double)((float)(movingobjectposition.hitVec.yCoord - this.posY));
-                    this.motionZ = (double)((float)(movingobjectposition.hitVec.zCoord - this.posZ));
+                    this.motionX = (double)((float)(movingobjectposition.hitVec.x - this.posX));
+                    this.motionY = (double)((float)(movingobjectposition.hitVec.y - this.posY));
+                    this.motionZ = (double)((float)(movingobjectposition.hitVec.z - this.posZ));
                     float f5 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
                     this.posX -= this.motionX / (double)f5 * 0.05000000074505806D;
                     this.posY -= this.motionY / (double)f5 * 0.05000000074505806D;

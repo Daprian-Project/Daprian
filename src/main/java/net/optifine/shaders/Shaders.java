@@ -4080,9 +4080,9 @@ public class Shaders
 
             Vec3 vec3 = mc.theWorld.getSkyColor(entity, partialTicks);
             vec3 = CustomColors.getWorldSkyColor(vec3, currentWorld, entity, partialTicks);
-            skyColorR = (float)vec3.xCoord;
-            skyColorG = (float)vec3.yCoord;
-            skyColorB = (float)vec3.zCoord;
+            skyColorR = (float)vec3.x;
+            skyColorG = (float)vec3.y;
+            skyColorB = (float)vec3.z;
         }
 
         isRenderingWorld = true;
@@ -4915,9 +4915,9 @@ public class Shaders
 
     public static void setSkyColor(Vec3 v3color)
     {
-        skyColorR = (float)v3color.xCoord;
-        skyColorG = (float)v3color.yCoord;
-        skyColorB = (float)v3color.zCoord;
+        skyColorR = (float)v3color.x;
+        skyColorG = (float)v3color.y;
+        skyColorB = (float)v3color.z;
         setProgramUniform3f(uniform_skyColor, skyColorR, skyColorG, skyColorB);
     }
 

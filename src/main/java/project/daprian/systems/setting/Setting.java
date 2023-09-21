@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 public class Setting<T> {
-    // Tafak u want pervert
     private String name;
     private T value;
     private T defaultValue;
@@ -20,6 +19,9 @@ public class Setting<T> {
     private T incrementation;
     private Supplier<Boolean> visible = () -> true;
     private int index = 0;
+
+    private Setting<?> dependentSetting;
+    private Type dependentType;
 
     private Setting() {
         if (this.getValue() instanceof Enum) {
@@ -36,6 +38,35 @@ public class Setting<T> {
         }
         return null;
     }
+
+    public void updateValueBasedOnDependency() {
+        if (this.dependentSetting != null) {
+            T currentValue = this.value;
+            T dependencyValue = (T) dependentSetting.getValue();
+
+            if (dependentType.equals(Type.SMALLER) || dependentType.equals(Type.BIGGER)) {
+                if (currentValue instanceof Number && dependencyValue instanceof Number) {
+                    switch (dependentType) {
+                        case BIGGER:
+                            if (((Number) dependencyValue).doubleValue() > ((Number) currentValue).doubleValue())
+                                setValue((T) dependentSetting.getValue());
+                            break;
+                        case SMALLER:
+                            if (((Number) dependencyValue).doubleValue() < ((Number) currentValue).doubleValue())
+                                setValue((T) dependentSetting.getValue());
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+        updateValueBasedOnDependency();
+    }
+
+    public enum Type { SMALLER, BIGGER, BOOLEAN }
 
     public static class SettingBuilder<T> {
         private final Setting<T> setting = new Setting<>();
@@ -64,6 +95,12 @@ public class Setting<T> {
             setting.name = name;
             setting.value = defaultValue;
             setting.defaultValue = defaultValue;
+            return this;
+        }
+
+        public SettingBuilder<T> setDependency(Setting<?> dependentSetting, Type type) {
+            setting.setDependentSetting(dependentSetting);
+            setting.dependentType = type;
             return this;
         }
 
