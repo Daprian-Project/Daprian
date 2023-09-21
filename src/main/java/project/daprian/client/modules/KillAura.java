@@ -22,7 +22,7 @@ import project.daprian.utility.rotation.Rotations;
 
 import java.time.Duration;
 
-@Module.Info(name = "KillAura", category = Category.Combat)
+@Module.Info(name = "KillAura", category = Category.Combat, bindable = true)
 public class KillAura extends Module {
 
     private final Setting<Double> range = Setting.create(setting -> setting.setValues("Range", 4D, 3D, 6D, .1));
@@ -104,7 +104,7 @@ public class KillAura extends Module {
         switch (attackType.getValue()) {
             case Packet:
                 mc.thePlayer.swingItem();
-                mc.getNetHandler().getNetworkManager().sendPacket(new C02PacketUseEntity(currentTarget, C02PacketUseEntity.Action.ATTACK));
+                mc.playerController.attackEntityPacket(mc.thePlayer, currentTarget);
                 break;
             case Player:
                 mc.thePlayer.swingItem();

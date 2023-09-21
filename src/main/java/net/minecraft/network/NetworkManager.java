@@ -48,6 +48,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import project.daprian.client.Main;
 import project.daprian.client.events.PacketEvent;
 import project.daprian.systems.event.State;
 
@@ -155,6 +156,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
             try
             {
                 PacketEvent packetEvent = new PacketEvent(State.Post, p_channelRead0_2_);
+                Main.getInstance().getPubSub().publish(packetEvent);
 
                 if (packetEvent.isCancelled())
                     return;

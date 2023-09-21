@@ -1955,6 +1955,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                         }
 
                         for (Module module : Main.getInstance().getModuleManager().getModuleHashMap().values()) {
+                            if (module.getBind() == null) continue;
                             if (module.getBind().getValue().getButtonCode() == k) {
                                 module.Toggle();
                             }

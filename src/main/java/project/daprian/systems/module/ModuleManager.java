@@ -3,9 +3,7 @@ package project.daprian.systems.module;
 import lombok.Getter;
 import me.daprian.tasks.Tasked;
 import project.daprian.client.Main;
-import project.daprian.client.modules.KillAura;
-import project.daprian.client.modules.HUD;
-import project.daprian.client.modules.VanillaTweaks;
+import project.daprian.client.modules.*;
 import project.daprian.systems.setting.Setting;
 
 import java.lang.reflect.Field;
@@ -20,6 +18,10 @@ public class ModuleManager {
         add(new VanillaTweaks());
         add(new HUD());
         add(new KillAura());
+        add(new HitMarker());
+        add(new Speed());
+        add(new Flight());
+        add(new Velocity());
 
         moduleHashMap.values().forEach(this::addOptionsFromFields);
 
@@ -50,9 +52,5 @@ public class ModuleManager {
     private void add(Module module) {
         Main.getInstance().getLogger().info(String.format("Registered %s: %s", module.getName(), module.getDescription()));
         moduleHashMap.put(module.getClass(), module);
-    }
-
-    public List<Module> getModules() {
-        return new ArrayList<>(moduleHashMap.values());
     }
 }

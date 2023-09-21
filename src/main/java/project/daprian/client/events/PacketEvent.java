@@ -9,7 +9,7 @@ import project.daprian.systems.event.Cancellable;
 import project.daprian.systems.event.State;
 
 @AllArgsConstructor @Setter @Getter
-public class PacketEvent<T extends INetHandler> extends Cancellable {
+public class PacketEvent extends Cancellable {
     private final State state;
-    private Packet<T> packet;
+    private Packet packet;
 }

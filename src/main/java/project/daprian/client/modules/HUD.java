@@ -8,6 +8,7 @@ import project.daprian.client.Main;
 import project.daprian.client.events.RenderUIEvent;
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
+import project.daprian.systems.notification.NotificationManager;
 import project.daprian.systems.setting.Setting;
 import project.daprian.utility.ColorUtils;
 
@@ -15,21 +16,33 @@ import java.awt.*;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Module.Info(name = "HUD", category = Category.Render)
+@Module.Info(name = "HUD", category = Category.Render, bindable = false)
 public class HUD extends Module {
 
     private final Setting<ColorMode> colorMode = Setting.create(setting -> setting.setValues("Color", ColorMode.Red));
     private final Setting<Boolean> lowerCase = Setting.create(setting -> setting.setValues("Lower Case", false));
+    private final Setting<Boolean> notifications = Setting.create(setting -> setting.setValues("Notifications", true));
     FontRenderer fr = mc.fontRendererObj;
+    NotificationManager notificationManager = new NotificationManager();
 
     @Listen
     public void onRender(RenderUIEvent event) {
         drawWatermark();
         drawArraylist();
+
+        if (notifications.getValue())
+            notificationManager.render();
     }
 
     private void drawWatermark() {
-        fr.drawString(String.format("%s %s", Main.getInstance().getName(), Main.getInstance().getVersion()), 5, 5, -1);
+        String waterMark = String.format("%s %s", Main.getInstance().getName(), Main.getInstance().getVersion());
+
+        int offset = 0;
+        for (char c : waterMark.toCharArray()) {
+            Color interpolatedColor = ColorUtils.interpolateColorsBackAndForth(10, offset + offset, colorMode.getValue().getFirst(), colorMode.getValue().getSecond(), false);
+            fr.drawStringWithShadow(String.valueOf(c), 5 + offset, 5, interpolatedColor.getRGB());
+            offset += fr.getStringWidth(String.valueOf(c));
+        }
     }
 
     private void drawArraylist() {
@@ -45,7 +58,7 @@ public class HUD extends Module {
             float posY = 5 + offset.get() * stringHeight;
 
             Color interpolatedColor = ColorUtils.interpolateColorsBackAndForth(10, offset.get() + offset.get(), colorMode.getValue().getFirst(), colorMode.getValue().getSecond(), false);
-            fr.drawString(moduleName, posX, posY, interpolatedColor.getRGB());
+            fr.drawStringWithShadow(moduleName, posX, posY, interpolatedColor.getRGB());
 
             offset.getAndIncrement();
         });

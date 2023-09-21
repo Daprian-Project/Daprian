@@ -211,6 +211,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import project.daprian.client.Main;
 import project.daprian.client.events.PacketEvent;
 import project.daprian.systems.event.State;
 
@@ -816,6 +817,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
     public void addToSendQueue(Packet p_147297_1_)
     {
         PacketEvent packetEvent = new PacketEvent(State.Pre, p_147297_1_);
+        Main.getInstance().getPubSub().publish(packetEvent);
 
         if (packetEvent.isCancelled())
             return;

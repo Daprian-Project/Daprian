@@ -5,6 +5,8 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import project.daprian.client.Main;
+import project.daprian.systems.notification.Notification;
+import project.daprian.systems.notification.NotificationManager;
 import project.daprian.systems.setting.Bind;
 import project.daprian.systems.setting.Setting;
 
@@ -20,8 +22,8 @@ public class Module {
     private final String name;
     private final String description;
     private final Category category;
-    private final Setting<Bind> bind;
     protected final Minecraft mc = Minecraft.getMinecraft();
+    private Setting<Bind> bind = null;
 
     @Setter
     private Supplier<String> suffix = () -> "";
@@ -39,18 +41,19 @@ public class Module {
         name = info.name();
         description = info.description();
         category = info.category();
-        bind = Setting.create(bindSetting -> {
-            bindSetting.setValues("Bind", new Bind(info.bind()));
-        });
-        settings.add(bind);
+
+        if (info.bindable()) {
+            bind = Setting.create(bindSetting -> {
+                bindSetting.setValues("Bind", new Bind(info.bind()));
+                bindSetting.setVisible(info::bindable);
+            });
+
+            settings.add(bind);
+        }
     }
 
-    protected void onEnable() {
-        Main.getInstance().getLogger().info(String.format("Enabled %s.", name));
-    }
-    protected void onDisable() {
-        Main.getInstance().getLogger().info(String.format("Disabled %s.", name));
-    }
+    protected void onEnable() {}
+    protected void onDisable() {}
 
     public void Toggle() {
         enabled = !enabled;
@@ -98,12 +101,20 @@ public class Module {
         }
     }
 
+    protected void Check(Module module) {
+        if (this.isEnabled() && module.isEnabled()) {
+            NotificationManager.addNotification(new Notification(String.format("Disabled %s to prevent errors!", name), 2, Notification.Type.WARNING, Notification.Position.CROSSHAIR));
+            module.Toggle();
+        }
+    }
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface Info {
         String name();
         String description() default "My man so dumb he cant make a description for a fokin module 😭";
         Category category();
+        boolean bindable();
         int bind() default 0;
     }
 }
