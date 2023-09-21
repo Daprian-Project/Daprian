@@ -2,7 +2,9 @@ package project.daprian.utility.rotation;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.Vec3;
+import project.daprian.client.events.MotionEvent;
 
 import java.util.Random;
 
@@ -29,6 +31,18 @@ public class Angle {
         }
 
         return from + difference;
+    }
+
+    public static Rotations smoothRotations(EntityLivingBase currentTarget, Rotations currentRotations){
+        currentRotations = new Rotations(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+        FixedRotations fixedRotations = new FixedRotations(currentRotations);
+        fixedRotations.updateRotations(Angle.calcRotationToEntity(currentTarget));
+
+        Rotations finalRotations = fixedRotations.getCurrentRotations();
+
+        currentRotations.setYaw(finalRotations.getYaw());
+        currentRotations.setPitch(finalRotations.getPitch());
+        return currentRotations;
     }
 
     public static Rotations calcRotationToEntity(Entity e) {
