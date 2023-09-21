@@ -17,6 +17,10 @@ public class Main {
     @Getter
     private static Main instance;
 
+    private final String name = "Daprian";
+    private final String version = "0.0.1";
+    private final String build = "092123";
+
     private final Logger logger = LogManager.getLogger();
     private final PubSub<Event> pubSub = PubSub.newInstance(logger::error);
     private final ModuleManager moduleManager = new ModuleManager();

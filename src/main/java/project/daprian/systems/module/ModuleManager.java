@@ -4,12 +4,12 @@ import lombok.Getter;
 import me.daprian.tasks.Tasked;
 import project.daprian.client.Main;
 import project.daprian.client.modules.KillAura;
-import project.daprian.client.modules.TestThing;
+import project.daprian.client.modules.HUD;
 import project.daprian.client.modules.VanillaTweaks;
 import project.daprian.systems.setting.Setting;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.*;
 
 @Getter
 public class ModuleManager {
@@ -18,7 +18,7 @@ public class ModuleManager {
     @Tasked(taskName = "Init Module Manager")
     public void Init() {
         add(new VanillaTweaks());
-        add(new TestThing());
+        add(new HUD());
         add(new KillAura());
 
         moduleHashMap.values().forEach(this::addOptionsFromFields);
@@ -50,5 +50,9 @@ public class ModuleManager {
     private void add(Module module) {
         Main.getInstance().getLogger().info(String.format("Registered %s: %s", module.getName(), module.getDescription()));
         moduleHashMap.put(module.getClass(), module);
+    }
+
+    public List<Module> getModules() {
+        return new ArrayList<>(moduleHashMap.values());
     }
 }

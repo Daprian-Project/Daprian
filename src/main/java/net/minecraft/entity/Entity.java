@@ -2849,4 +2849,8 @@ public abstract class Entity implements ICommandSender
 
         EnchantmentHelper.applyArthropodEnchantments(entityLivingBaseIn, entityIn);
     }
+
+    public Vec3 getMotion() {
+        return new Vec3(motionX, motionY, motionZ);
+    }
 }

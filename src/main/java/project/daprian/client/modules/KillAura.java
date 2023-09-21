@@ -5,6 +5,8 @@ import lombok.Getter;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.play.client.C02PacketUseEntity;
+import net.minecraft.util.MathHelper;
 import project.daprian.client.events.JumpEvent;
 import project.daprian.client.events.MotionEvent;
 import project.daprian.client.events.StrafeEvent;
@@ -12,7 +14,11 @@ import project.daprian.systems.event.State;
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
+import project.daprian.utility.MovementUtil;
 import project.daprian.utility.TimeUtil;
+import project.daprian.utility.rotation.Angle;
+import project.daprian.utility.rotation.FixedRotations;
+import project.daprian.utility.rotation.Rotations;
 
 import java.time.Duration;
 
@@ -28,6 +34,7 @@ public class KillAura extends Module {
     private final Setting<Boolean> strafeFix = Setting.create(setting -> setting.setValues("Strafe Fix", false));
 
     private EntityLivingBase currentTarget;
+    private Rotations currentRotations;
     private final TimeUtil stopwatch;
     @Getter
     private boolean blocking;
@@ -45,6 +52,17 @@ public class KillAura extends Module {
 
         float distanceToEntity = currentTarget.getDistanceToEntity(mc.thePlayer);
         blocking = distanceToEntity <= blockRange.getValue();
+
+        currentRotations = new Rotations(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+        FixedRotations fixedRotations = new FixedRotations(currentRotations);
+        fixedRotations.updateRotations(Angle.calcRotationToEntity(currentTarget));
+
+        Rotations finalRotations = fixedRotations.getCurrentRotations();
+
+        currentRotations.setYaw(finalRotations.getYaw());
+        currentRotations.setPitch(finalRotations.getPitch());
+        event.setYaw(finalRotations.getYaw());
+        event.setPitch(finalRotations.getPitch());
 
         if (distanceToEntity <= attackRange.getValue()) {
             if (stopwatch.hasReached(Duration.ofMillis(1000 / cps.getValue()))) {
@@ -69,14 +87,16 @@ public class KillAura extends Module {
     @Listen
     public void onStrafe(StrafeEvent event) {
         if (strafeFix.getValue() && currentTarget != null) {
-            // TODO
+            Rotations targetRotations = Angle.calcRotationToEntity(currentTarget);
+            event.setYaw(targetRotations.getYaw());
         }
     }
 
     @Listen
     public void onJump(JumpEvent event) {
         if (strafeFix.getValue() && currentTarget != null) {
-            // TODO
+            Rotations targetRotations = Angle.calcRotationToEntity(currentTarget);
+            event.setYaw(targetRotations.getYaw());
         }
     }
 
@@ -84,11 +104,11 @@ public class KillAura extends Module {
         switch (attackType.getValue()) {
             case Packet:
                 mc.thePlayer.swingItem();
-                System.out.println("Attacking packet: " + currentTarget.getName());
+                mc.getNetHandler().getNetworkManager().sendPacket(new C02PacketUseEntity(currentTarget, C02PacketUseEntity.Action.ATTACK));
                 break;
             case Player:
                 mc.thePlayer.swingItem();
-                System.out.println("Attacking player: " + currentTarget.getName());
+                mc.playerController.attackEntity(mc.thePlayer, currentTarget);
                 break;
         }
     }

@@ -43,6 +43,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
 import net.optifine.CustomColors;
+import project.daprian.client.Main;
+import project.daprian.client.events.RenderUIEvent;
 
 public class GuiIngame extends Gui
 {
@@ -359,6 +361,8 @@ public class GuiIngame extends Gui
         {
             this.overlayPlayerList.updatePlayerList(false);
         }
+
+        Main.getInstance().getPubSub().publish(new RenderUIEvent(scaledresolution, partialTicks));
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableLighting();
