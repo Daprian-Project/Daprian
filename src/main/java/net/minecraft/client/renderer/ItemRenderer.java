@@ -31,8 +31,11 @@ import net.optifine.DynamicLights;
 import net.optifine.reflect.Reflector;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
+import project.daprian.client.Main;
+import project.daprian.client.modules.KillAura;
 
-public class ItemRenderer
+public class
+ItemRenderer
 {
     private static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
     private static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
@@ -378,15 +381,17 @@ public class ItemRenderer
             GlStateManager.enableRescaleNormal();
             GlStateManager.pushMatrix();
 
+            KillAura killAura = (KillAura) Main.getInstance().getModuleManager().getModule(KillAura.class);
+
             if (this.itemToRender != null)
             {
                 if (this.itemToRender.getItem() instanceof ItemMap)
                 {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
                 }
-                else if (abstractclientplayer.getItemInUseCount() > 0)
+                else if (abstractclientplayer.getItemInUseCount() > 0 || killAura.isEnabled())
                 {
-                    EnumAction enumaction = this.itemToRender.getItemUseAction();
+                    EnumAction enumaction = killAura.isBlocking() ? EnumAction.BLOCK : this.itemToRender.getItemUseAction();
 
                     switch (enumaction)
                     {
@@ -401,8 +406,9 @@ public class ItemRenderer
                             break;
 
                         case BLOCK:
-                            this.transformFirstPersonItem(f, 0.0F);
+                            this.transformFirstPersonItem(f, f1);
                             this.doBlockTransformations();
+                            GlStateManager.translate(-0.15F, 0.2F, 0.2F);
                             break;
 
                         case BOW:

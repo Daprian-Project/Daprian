@@ -791,15 +791,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 
                         VanillaTweaks vanillaTweaks = (VanillaTweaks) Main.getInstance().getModuleManager().getModule(VanillaTweaks.class);
 
-                        int chunkX = chunk.xPosition;
-                        int chunkZ = chunk.zPosition;
+                        double maxRenderDistance = vanillaTweaks.getEntityCullingDistance().getValue();
+                        double distanceSq = entity2.getDistanceSq(renderViewEntity.posX, renderViewEntity.posY, renderViewEntity.posZ);
 
-                        double chunkRenderDistance = vanillaTweaks.getEntityCullingDistance().getValue();
-                        int deltaX = chunkX - (int)(renderViewEntity.posX / 16);
-                        int deltaZ = chunkZ - (int)(renderViewEntity.posZ / 16);
-                        double distanceSq = deltaX * deltaX + deltaZ * deltaZ;
-
-                        if (frustum.isBoundingBoxInFrustum(entity2.getEntityBoundingBox()) && distanceSq <= chunkRenderDistance * chunkRenderDistance)
+                        // Check if the entity is within the maximum render distance
+                        if (distanceSq <= maxRenderDistance * maxRenderDistance)
                         {
                             boolean flag4 = this.renderManager.shouldRender(entity2, camera, d0, d1, d2) || entity2.riddenByEntity == this.mc.thePlayer;
 

@@ -4,7 +4,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
@@ -18,9 +21,13 @@ import javax.vecmath.Vector4f;
 import java.awt.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class RenderUtil  {
 
+    private static final FloatBuffer windowPos = BufferUtils.createFloatBuffer(3);
     private static final FloatBuffer windowPosition = BufferUtils.createFloatBuffer(4);
     private static final IntBuffer viewport = GLAllocation.createDirectIntBuffer(16);
     private static final FloatBuffer modelMatrix = GLAllocation.createDirectFloatBuffer(16);
@@ -114,5 +121,69 @@ public class RenderUtil  {
         GL11.glColor4f(1.0f, 1, 1, 1.0f);
         Minecraft.getMinecraft().getTextureManager().bindTexture(skin);
         Gui.drawScaledCustomSizeModalRect((int) x, (int) y, 8.0f, 8.0f, 8, 8, (int) width, (int) height, 64.0f, 64.0f);
+    }
+
+    public static void drawESP(AxisAlignedBB axisAlignedBB, Color color, float lineWidth) {
+        ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
+
+        // use an extreme high or low value that will probably never be valid
+        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+
+        // clear the last stored window position
+        windowPos.clear();
+
+        // loop thought all min max combinations
+        for (int x = 0; x < 2; x++) {
+            for (int z = 0; z < 2; z++) {
+                for (int y = 0; y < 2; y++) {
+                    // use gluProject to convert the 3D object coords to 2D window coords
+                    if (GLU.gluProject((float) (x == 1 ? axisAlignedBB.minX : axisAlignedBB.maxX), (float) (y == 1 ? axisAlignedBB.minY : axisAlignedBB.maxY), (float) (z == 1 ? axisAlignedBB.minZ : axisAlignedBB.maxZ), ActiveRenderInfo.getMODELVIEW(), ActiveRenderInfo.getPROJECTION(), ActiveRenderInfo.getVIEWPORT(), windowPos)) {
+                        if (windowPos.get(2) > 1) {
+                            continue;
+                        }
+
+                        // scale the output coords with our current scale factor
+                        double screenX = windowPos.get(0) / scaledResolution.getScaleFactor();
+                        double screenY = windowPos.get(1) / scaledResolution.getScaleFactor();
+
+                        // find the max and min coords
+                        minX = Math.min(screenX, minX);
+                        minY = Math.min(screenY, minY);
+                        maxX = Math.max(screenX, maxX);
+                        maxY = Math.max(screenY, maxY);
+                    }
+                }
+            }
+        }
+
+        // if minX isn't Double.MAX_VALUE then the other values should also be valid
+        if (minX != Double.MAX_VALUE) {
+            if (minX > 0 || minY > 0 || maxX <= Minecraft.getMinecraft().displayWidth || maxX <= Minecraft.getMinecraft().displayHeight) {
+                // invert the y coords because Minecraft has inverted them as well
+                minY = scaledResolution.getScaledHeight() - minY;
+                maxY = scaledResolution.getScaledHeight() - maxY;
+
+                GL11.glPushMatrix();
+                // enable alpha blending
+                GL11.glEnable(GL11.GL_BLEND);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                // disable texture 2d since we don't want to draw any textures
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glColor4d(color.getRed() / 255d, color.getGreen() / 255d, color.getBlue() / 255d, color.getAlpha() / 255d);
+                // set the outline width to 2
+                GL11.glLineWidth(lineWidth);
+                // render the outline line loop connects the last point automatically
+                GL11.glBegin(GL11.GL_LINE_LOOP);
+                GL11.glVertex2d(minX, minY);
+                GL11.glVertex2d(minX, maxY);
+                GL11.glVertex2d(maxX, maxY);
+                GL11.glVertex2d(maxX, minY);
+                GL11.glEnd();
+                GL11.glEnable(GL11.GL_TEXTURE_2D);
+                GL11.glDisable(GL11.GL_BLEND);
+                GL11.glPopMatrix();
+            }
+        }
     }
 }

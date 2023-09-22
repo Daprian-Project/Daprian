@@ -12,6 +12,7 @@ import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -53,6 +54,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import project.daprian.client.Main;
 import project.daprian.client.events.JumpEvent;
+import project.daprian.client.events.StrafeEvent;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -1578,24 +1580,24 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void jump()
     {
-        this.motionY = this.getJumpUpwardsMotion();
-        float yaw = this.rotationYaw;
-
-        if(this instanceof EntityPlayerSP) {
-            JumpEvent eventJump = new JumpEvent(motionY, yaw);
-            Main.getInstance().getPubSub().publish(eventJump);
-            motionY = eventJump.getMotion();
-            yaw = eventJump.getYaw();
-        }
+        double jumpY = (double)this.getJumpUpwardsMotion();
 
         if (this.isPotionActive(Potion.jump))
         {
-            this.motionY += (double)((float)(this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
+            jumpY += (double)((float)(this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
         }
 
-        if (this.isSprinting())
+        JumpEvent event = new JumpEvent(jumpY, this.rotationYaw, this.isSprinting());
+
+        if(this == Minecraft.getMinecraft().thePlayer) {
+            Main.getInstance().getPubSub().publish(event);
+        }
+
+        this.motionY = event.getMotion();
+
+        if (event.isSprinting())
         {
-            float f = yaw * 0.017453292F;
+            float f = event.getYaw() * 0.017453292F;
             this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
             this.motionZ += (double)(MathHelper.cos(f) * 0.2F);
         }
@@ -1646,7 +1648,13 @@ public abstract class EntityLivingBase extends Entity
                         f5 = this.jumpMovementFactor;
                     }
 
-                    this.moveFlying(strafe, forward, f5);
+                    StrafeEvent event = new StrafeEvent(forward, strafe, f4, f5, this.rotationYaw);
+
+                    if(this == Minecraft.getMinecraft().thePlayer) {
+                        Main.getInstance().getPubSub().publish(event);
+                    }
+
+                    this.moveFlying(event.getStrafe(), event.getForward(), event.getAttributeSpeed(), event.getYaw());
                     f4 = 0.91F;
 
                     if (this.onGround)
@@ -1698,13 +1706,13 @@ public abstract class EntityLivingBase extends Entity
                     }
 
                     this.motionY *= 0.9800000190734863D;
-                    this.motionX *= (double)f4;
-                    this.motionZ *= (double)f4;
+                    this.motionX *= event.getFriction();
+                    this.motionZ *= event.getFriction();
                 }
                 else
                 {
                     double d1 = this.posY;
-                    this.moveFlying(strafe, forward, 0.02F);
+                    this.moveFlying(strafe, forward, 0.02F, rotationYaw);
                     this.moveEntity(this.motionX, this.motionY, this.motionZ);
                     this.motionX *= 0.5D;
                     this.motionY *= 0.5D;
@@ -1740,7 +1748,7 @@ public abstract class EntityLivingBase extends Entity
                     f2 += (this.getAIMoveSpeed() * 1.0F - f2) * f3 / 3.0F;
                 }
 
-                this.moveFlying(strafe, forward, f2);
+                this.moveFlying(strafe, forward, f2, rotationYaw);
                 this.moveEntity(this.motionX, this.motionY, this.motionZ);
                 this.motionX *= (double)f1;
                 this.motionY *= 0.800000011920929D;

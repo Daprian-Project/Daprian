@@ -8,9 +8,11 @@ import project.daprian.systems.event.Event;
 public class JumpEvent extends Event {
     double motion;
     float yaw;
+    boolean sprinting;
 
-    public JumpEvent(double motion, float yaw) {
+    public JumpEvent(double motion, float yaw, boolean sprinting) {
         this.motion = motion;
         this.yaw = yaw;
+        this.sprinting = sprinting;
     }
 }

@@ -1227,53 +1227,26 @@ public abstract class Entity implements ICommandSender
      * @param forward The forward movement input.
      * @param friction The friction value.
      */
-    public void moveFlying(float strafe, float forward, float friction) {
-        if (this == Minecraft.getMinecraft().thePlayer) {
-            float yaw = this.rotationYaw;
+    public void moveFlying(float strafe, float forward, float friction, float yaw)
+    {
+        float f = strafe * strafe + forward * forward;
 
-            StrafeEvent event = new StrafeEvent(strafe, forward, friction, yaw);
-            Main.getInstance().getPubSub().publish(event);
+        if (f >= 1.0E-4F)
+        {
+            f = MathHelper.sqrt_float(f);
 
-            strafe = event.getStrafe();
-            forward = event.getForward();
-            friction = event.getFriction();
-            yaw = event.getYaw();
-
-            float f = strafe * strafe + forward * forward;
-
-            if (f >= 1.0E-4F) {
-                f = MathHelper.sqrt_float(f);
-
-                if (f < 1.0F) {
-                    f = 1.0F;
-                }
-
-                f = friction / f;
-                strafe *= f;
-                forward *= f;
-                double f1 = Math.sin((yaw * Math.PI / 180.0F));
-                double f2 = Math.cos((yaw * Math.PI / 180.0F));
-                this.motionX += (strafe * f2 - forward * f1);
-                this.motionZ += (forward * f2 + strafe * f1);
+            if (f < 1.0F)
+            {
+                f = 1.0F;
             }
-        } else {
-            float f = strafe * strafe + forward * forward;
 
-            if (f >= 1.0E-4F) {
-                f = MathHelper.sqrt_float(f);
-
-                if (f < 1.0F) {
-                    f = 1.0F;
-                }
-
-                f = friction / f;
-                strafe = strafe * f;
-                forward = forward * f;
-                float f1 = MathHelper.sin(this.rotationYaw * (float) Math.PI / 180.0F);
-                float f2 = MathHelper.cos(this.rotationYaw * (float) Math.PI / 180.0F);
-                this.motionX += strafe * f2 - forward * f1;
-                this.motionZ += forward * f2 + strafe * f1;
-            }
+            f = friction / f;
+            strafe = strafe * f;
+            forward = forward * f;
+            float f1 = MathHelper.sin(yaw * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos(yaw * (float)Math.PI / 180.0F);
+            this.motionX += strafe * f2 - forward * f1;
+            this.motionZ += forward * f2 + strafe * f1;
         }
     }
 

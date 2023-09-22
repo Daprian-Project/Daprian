@@ -14,14 +14,16 @@ import project.daprian.systems.event.State;
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
+import project.daprian.utility.MovementUtil;
 import project.daprian.utility.TimeUtil;
 import project.daprian.utility.rotation.Angle;
+import project.daprian.utility.rotation.FixedRotations;
 import project.daprian.utility.rotation.Rotations;
 
 import java.time.Duration;
 import java.util.Random;
 
-@Module.Info(name = "KillAura", category = Category.Combat,bind = Keyboard.KEY_R)
+@Module.Info(name = "KillAura", category = Category.Combat, bindable = true, bind = Keyboard.KEY_R)
 public class KillAura extends Module {
 
     private final Setting<Double> range = Setting.create(setting -> setting.setValues("Range", 4D, 3D, 6D, .1));
@@ -46,7 +48,6 @@ public class KillAura extends Module {
     public KillAura() {
         stopwatch = new TimeUtil();
         stopwatch.reset();
-
     }
 
     @Listen
@@ -57,7 +58,6 @@ public class KillAura extends Module {
 
         float distanceToEntity = currentTarget.getDistanceToEntity(mc.thePlayer);
         blocking = distanceToEntity <= blockRange.getValue();
-
 
         switch (rotsModes.getValue()) {
             case Normal:
@@ -110,16 +110,14 @@ public class KillAura extends Module {
     @Listen
     public void onStrafe(StrafeEvent event) {
         if (strafeFix.getValue() && currentTarget != null) {
-            Rotations targetRotations = Angle.calcRotationToEntity(currentTarget);
-            event.setYaw(targetRotations.getYaw());
+            event.setYaw(Angle.calcRotationToEntity(currentTarget).getYaw());
         }
     }
 
     @Listen
     public void onJump(JumpEvent event) {
         if (strafeFix.getValue() && currentTarget != null) {
-            Rotations targetRotations = Angle.calcRotationToEntity(currentTarget);
-            event.setYaw(targetRotations.getYaw());
+            event.setYaw(Angle.calcRotationToEntity(currentTarget).getYaw());
         }
     }
 

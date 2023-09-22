@@ -563,7 +563,7 @@ public class EntityGuardian extends EntityMob
         {
             if (this.isInWater())
             {
-                this.moveFlying(strafe, forward, 0.1F);
+                this.moveFlying(strafe, forward, 0.1F, rotationYaw);
                 this.moveEntity(this.motionX, this.motionY, this.motionZ);
                 this.motionX *= 0.8999999761581421D;
                 this.motionY *= 0.8999999761581421D;

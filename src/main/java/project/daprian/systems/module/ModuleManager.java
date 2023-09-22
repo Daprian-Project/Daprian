@@ -18,14 +18,16 @@ public class ModuleManager {
         add(new VanillaTweaks());
         add(new HUD());
         add(new KillAura());
-        add(new HitMarker());
+        add(new ESP());
         add(new Speed());
         add(new Flight());
         add(new Velocity());
+        add(new Chams());
 
         moduleHashMap.values().forEach(this::addOptionsFromFields);
 
         getModule(VanillaTweaks.class).Toggle();
+        getModule(HUD.class).Toggle();
     }
 
     private void addOptionsFromFields(Module module) {

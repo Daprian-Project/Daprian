@@ -97,6 +97,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
 import project.daprian.client.Main;
+import project.daprian.client.events.RenderWorldEvent;
 import project.daprian.client.modules.VanillaTweaks;
 
 public class EntityRenderer implements IResourceManagerReloadListener
@@ -1923,6 +1924,8 @@ public class EntityRenderer implements IResourceManagerReloadListener
             this.mc.mcProfiler.endStartSection("forge_render_last");
             Reflector.callVoid(Reflector.ForgeHooksClient_dispatchRenderLast, new Object[] {renderglobal, Float.valueOf(partialTicks)});
         }
+
+        Main.getInstance().getPubSub().publish(new RenderWorldEvent(partialTicks));
 
         this.mc.mcProfiler.endStartSection("hand");
 

@@ -282,7 +282,7 @@ public class EntityDragon extends EntityLiving implements IBossDisplayData, IEnt
                     this.rotationYaw += this.randomYawVelocity * 0.1F;
                     float f7 = (float)(2.0D / (d9 + 1.0D));
                     float f8 = 0.06F;
-                    this.moveFlying(0.0F, -1.0F, f8 * (f5 * f7 + (1.0F - f7)));
+                    this.moveFlying(0.0F, -1.0F, f8 * (f5 * f7 + (1.0F - f7)), rotationYaw);
 
                     if (this.slowed)
                     {

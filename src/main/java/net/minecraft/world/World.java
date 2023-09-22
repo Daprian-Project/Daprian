@@ -3,13 +3,8 @@ package net.minecraft.world;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.concurrent.Callable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHopper;
@@ -23,6 +18,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -3861,5 +3857,15 @@ public abstract class World implements IBlockAccess
         int j = z * 16 + 8 - blockpos.getZ();
         int k = 128;
         return i >= -k && i <= k && j >= -k && j <= k;
+    }
+
+    public ArrayList<EntityLivingBase> getLivingEntities() {
+        ArrayList<EntityLivingBase> finalAL = new ArrayList<>();
+        for (Entity e : loadedEntityList) {
+            if (e instanceof EntityLivingBase) {
+                finalAL.add((EntityLivingBase) e);
+            }
+        }
+        return finalAL;
     }
 }

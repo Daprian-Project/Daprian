@@ -103,7 +103,7 @@ public class Module {
 
     protected void Check(Module module) {
         if (this.isEnabled() && module.isEnabled()) {
-            NotificationManager.addNotification(new Notification(String.format("Disabled %s to prevent errors!", name), 2, Notification.Type.WARNING, Notification.Position.CROSSHAIR));
+            NotificationManager.addNotification(new Notification(String.format("Disabled %s to prevent errors!", module.getName()), 2, Notification.Type.WARNING, Notification.Position.CROSSHAIR));
             module.Toggle();
         }
     }

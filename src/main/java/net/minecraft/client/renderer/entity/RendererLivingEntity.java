@@ -31,6 +31,8 @@ import net.optifine.shaders.Shaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
+import project.daprian.client.Main;
+import project.daprian.client.modules.Chams;
 
 public abstract class RendererLivingEntity<T extends EntityLivingBase> extends Render<T>
 {
@@ -108,6 +110,13 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
      */
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
+        boolean chamsEnabled = entity instanceof EntityPlayer && Main.getInstance().getModuleManager().getModule(Chams.class).isEnabled();
+
+        if(chamsEnabled) {
+            GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+            GL11.glPolygonOffset(1.0f, -1100000.0f);
+        }
+
         if (!Reflector.RenderLivingEvent_Pre_Constructor.exists() || !Reflector.postForgeBusEvent(Reflector.RenderLivingEvent_Pre_Constructor, new Object[] {entity, this, Double.valueOf(x), Double.valueOf(y), Double.valueOf(z)}))
         {
             if (animateModelLiving)
@@ -288,6 +297,11 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             {
                 Reflector.postForgeBusEvent(Reflector.RenderLivingEvent_Post_Constructor, new Object[] {entity, this, Double.valueOf(x), Double.valueOf(y), Double.valueOf(z)});
             }
+        }
+
+        if(chamsEnabled) {
+            GL11.glPolygonOffset(1.0f, 1100000.0f);
+            GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
         }
     }
 
