@@ -29,6 +29,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
@@ -196,6 +197,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
             else
             {
                 this.onUpdateWalkingPlayer();
+
+                MotionEvent motionUpdatePost = new MotionEvent(State.Post, this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.lastReportedYaw, this.lastReportedPitch, this.onGround);
+                Main.getInstance().getPubSub().publish(motionUpdatePost);
             }
         }
     }
@@ -203,97 +207,76 @@ public class EntityPlayerSP extends AbstractClientPlayer
     /**
      * called every tick when the player is on foot. Performs all the things that normally happen during movement.
      */
-    public void onUpdateWalkingPlayer()
-    {
-        boolean flag = this.isSprinting();
+    public void onUpdateWalkingPlayer() {
+        boolean isSprinting = this.isSprinting();
 
-        if (flag != this.serverSprintState)
-        {
-            if (flag)
-            {
-                this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.START_SPRINTING));
-            }
-            else
-            {
-                this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.STOP_SPRINTING));
+        if (isSprinting != this.serverSprintState) {
+            if (isSprinting) {
+                this.sendPacketToServer(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.START_SPRINTING));
+            } else {
+                this.sendPacketToServer(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.STOP_SPRINTING));
             }
 
-            this.serverSprintState = flag;
+            this.serverSprintState = isSprinting;
         }
 
-        boolean flag1 = isSneaking();
+        boolean isSneaking = isSneaking();
 
-        if (flag1 != this.serverSneakState)
-        {
-            if (flag1)
-            {
-                this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.START_SNEAKING));
-            }
-            else
-            {
-                this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.STOP_SNEAKING));
+        if (isSneaking != this.serverSneakState) {
+            if (isSneaking) {
+                this.sendPacketToServer(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.START_SNEAKING));
+            } else {
+                this.sendPacketToServer(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.STOP_SNEAKING));
             }
 
-            this.serverSneakState = flag1;
+            this.serverSneakState = isSneaking;
         }
 
-        if (this.isCurrentViewEntity())
-        {
-            MotionEvent motionUpdate = new MotionEvent(State.Pre, this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.lastReportedYaw, this.lastReportedPitch, this.onGround);
-            Main.getInstance().getPubSub().publish(motionUpdate);
+        if (this.isCurrentViewEntity()) {
+            MotionEvent motionEvent = new MotionEvent(State.Pre, this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.lastReportedYaw, this.lastReportedPitch, this.onGround);
+            Main.getInstance().getPubSub().publish(motionEvent);
 
-            double d0 = motionUpdate.getX() - this.lastReportedPosX;
-            double d1 = motionUpdate.getY() - this.lastReportedPosY;
-            double d2 = motionUpdate.getZ() - this.lastReportedPosZ;
-            double d3 = motionUpdate.getYaw() - motionUpdate.getPrevYaw();
-            double d4 = motionUpdate.getPitch() - motionUpdate.getPrevPitch();
-            boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
-            boolean flag3 = d3 != 0.0D || d4 != 0.0D;
+            double deltaX = motionEvent.getX() - this.lastReportedPosX;
+            double deltaY = motionEvent.getY() - this.lastReportedPosY;
+            double deltaZ = motionEvent.getZ() - this.lastReportedPosZ;
+            double deltaYaw = motionEvent.getYaw() - this.lastReportedYaw;
+            double deltaPitch = motionEvent.getPitch() - this.lastReportedPitch;
+            boolean positionChanged = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ > 9.0E-4D || this.positionUpdateTicks >= 20;
+            boolean lookChanged = deltaYaw != 0.0D || deltaPitch != 0.0D;
 
-            if (this.ridingEntity == null)
-            {
-                if (flag2 && flag3)
-                {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(motionUpdate.getX(), motionUpdate.getY(), motionUpdate.getZ(), motionUpdate.getYaw(), motionUpdate.getPitch(), motionUpdate.isOnGround()));
+            if (this.ridingEntity == null) {
+                if (positionChanged && lookChanged) {
+                    this.sendPacketToServer(new C03PacketPlayer.C06PacketPlayerPosLook(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
+                } else if (positionChanged) {
+                    this.sendPacketToServer(new C03PacketPlayer.C04PacketPlayerPosition(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.isOnGround()));
+                } else if (lookChanged) {
+                    this.sendPacketToServer(new C03PacketPlayer.C05PacketPlayerLook(motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
+                } else {
+                    this.sendPacketToServer(new C03PacketPlayer(motionEvent.isOnGround()));
                 }
-                else if (flag2)
-                {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(motionUpdate.getX(), motionUpdate.getY(), motionUpdate.getZ(), motionUpdate.isOnGround()));
-                }
-                else if (flag3)
-                {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(motionUpdate.getYaw(), motionUpdate.getPitch(), motionUpdate.isOnGround()));
-                }
-                else
-                {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer(motionUpdate.isOnGround()));
-                }
-            }
-            else
-            {
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, motionUpdate.getYaw(), motionUpdate.getPitch(), motionUpdate.isOnGround()));
-                flag2 = false;
+            } else {
+                this.sendPacketToServer(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
+                positionChanged = false;
             }
 
             ++this.positionUpdateTicks;
 
-            if (flag2)
-            {
-                this.lastReportedPosX = motionUpdate.getX();
-                this.lastReportedPosY = motionUpdate.getY();
-                this.lastReportedPosZ = motionUpdate.getZ();
+            if (positionChanged) {
+                this.lastReportedPosX = motionEvent.getX();
+                this.lastReportedPosY = motionEvent.getY();
+                this.lastReportedPosZ = motionEvent.getZ();
                 this.positionUpdateTicks = 0;
             }
 
-            if (flag3)
-            {
-                this.lastReportedYaw = motionUpdate.getYaw();
-                this.lastReportedPitch = motionUpdate.getPitch();
+            if (lookChanged) {
+                this.lastReportedYaw = motionEvent.getYaw();
+                this.lastReportedPitch = motionEvent.getPitch();
             }
         }
+    }
 
-        MotionEvent motionUpdatePost = new MotionEvent(State.Post, this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.lastReportedYaw, this.lastReportedPitch, this.onGround);
-        Main.getInstance().getPubSub().publish(motionUpdatePost);
+    private void sendPacketToServer(Packet packet) {
+        this.sendQueue.addToSendQueue(packet);
     }
 
     /**

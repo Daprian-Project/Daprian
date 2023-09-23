@@ -42,6 +42,7 @@ public class KillAura extends Module {
     private EntityLivingBase currentTarget;
     private Rotations currentRotations;
     private final TimeUtil stopwatch;
+
     @Getter
     private boolean blocking;
 
@@ -53,6 +54,8 @@ public class KillAura extends Module {
     @Listen
     public void onMotion(MotionEvent event) {
         currentTarget = getClosest();
+
+        blocking = false;
 
         if (currentTarget == null) return;
 
@@ -85,7 +88,6 @@ public class KillAura extends Module {
                 rotate(event);
                 break;
         }
-
 
         if (distanceToEntity <= attackRange.getValue()) {
             if (stopwatch.hasReached(Duration.ofMillis(1000 / cps.getValue()))) {

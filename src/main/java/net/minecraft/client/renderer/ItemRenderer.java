@@ -389,7 +389,7 @@ ItemRenderer
                 {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
                 }
-                else if (abstractclientplayer.getItemInUseCount() > 0 || killAura.isEnabled())
+                else if (abstractclientplayer.getItemInUseCount() > 0 || killAura.isEnabled() && killAura.isBlocking())
                 {
                     EnumAction enumaction = killAura.isBlocking() ? EnumAction.BLOCK : this.itemToRender.getItemUseAction();
 
