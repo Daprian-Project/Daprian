@@ -196,7 +196,11 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
             else
             {
-                this.onUpdateWalkingPlayer();
+                this.onUpdateSprintingAndSneaking();
+
+                if (this.isCurrentViewEntity()) {
+                    this.onUpdateWalkingPlayer();
+                }
 
                 MotionEvent motionUpdatePost = new MotionEvent(State.Post, this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.lastReportedYaw, this.lastReportedPitch, this.onGround);
                 Main.getInstance().getPubSub().publish(motionUpdatePost);
@@ -208,6 +212,48 @@ public class EntityPlayerSP extends AbstractClientPlayer
      * called every tick when the player is on foot. Performs all the things that normally happen during movement.
      */
     public void onUpdateWalkingPlayer() {
+        MotionEvent motionEvent = new MotionEvent(State.Pre, this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.lastReportedYaw, this.lastReportedPitch, this.onGround);
+        Main.getInstance().getPubSub().publish(motionEvent);
+
+        double deltaX = motionEvent.getX() - this.lastReportedPosX;
+        double deltaY = motionEvent.getY() - this.lastReportedPosY;
+        double deltaZ = motionEvent.getZ() - this.lastReportedPosZ;
+        double deltaYaw = motionEvent.getYaw() - this.lastReportedYaw;
+        double deltaPitch = motionEvent.getPitch() - this.lastReportedPitch;
+        boolean positionChanged = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ > 9.0E-4D || this.positionUpdateTicks >= 20;
+        boolean lookChanged = deltaYaw != 0.0D || deltaPitch != 0.0D;
+
+        if (this.ridingEntity == null) {
+            if (positionChanged && lookChanged) {
+                this.sendPacketToServer(new C03PacketPlayer.C06PacketPlayerPosLook(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
+            } else if (positionChanged) {
+                this.sendPacketToServer(new C03PacketPlayer.C04PacketPlayerPosition(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.isOnGround()));
+            } else if (lookChanged) {
+                this.sendPacketToServer(new C03PacketPlayer.C05PacketPlayerLook(motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
+            } else {
+                this.sendPacketToServer(new C03PacketPlayer(motionEvent.isOnGround()));
+            }
+        } else {
+            this.sendPacketToServer(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
+            positionChanged = false;
+        }
+
+        ++this.positionUpdateTicks;
+
+        if (positionChanged) {
+            this.lastReportedPosX = motionEvent.getX();
+            this.lastReportedPosY = motionEvent.getY();
+            this.lastReportedPosZ = motionEvent.getZ();
+            this.positionUpdateTicks = 0;
+        }
+
+        if (lookChanged) {
+            this.lastReportedYaw = motionEvent.getYaw();
+            this.lastReportedPitch = motionEvent.getPitch();
+        }
+    }
+
+    private void onUpdateSprintingAndSneaking() {
         boolean isSprinting = this.isSprinting();
 
         if (isSprinting != this.serverSprintState) {
@@ -230,48 +276,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
 
             this.serverSneakState = isSneaking;
-        }
-
-        if (this.isCurrentViewEntity()) {
-            MotionEvent motionEvent = new MotionEvent(State.Pre, this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.lastReportedYaw, this.lastReportedPitch, this.onGround);
-            Main.getInstance().getPubSub().publish(motionEvent);
-
-            double deltaX = motionEvent.getX() - this.lastReportedPosX;
-            double deltaY = motionEvent.getY() - this.lastReportedPosY;
-            double deltaZ = motionEvent.getZ() - this.lastReportedPosZ;
-            double deltaYaw = motionEvent.getYaw() - this.lastReportedYaw;
-            double deltaPitch = motionEvent.getPitch() - this.lastReportedPitch;
-            boolean positionChanged = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ > 9.0E-4D || this.positionUpdateTicks >= 20;
-            boolean lookChanged = deltaYaw != 0.0D || deltaPitch != 0.0D;
-
-            if (this.ridingEntity == null) {
-                if (positionChanged && lookChanged) {
-                    this.sendPacketToServer(new C03PacketPlayer.C06PacketPlayerPosLook(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
-                } else if (positionChanged) {
-                    this.sendPacketToServer(new C03PacketPlayer.C04PacketPlayerPosition(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.isOnGround()));
-                } else if (lookChanged) {
-                    this.sendPacketToServer(new C03PacketPlayer.C05PacketPlayerLook(motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
-                } else {
-                    this.sendPacketToServer(new C03PacketPlayer(motionEvent.isOnGround()));
-                }
-            } else {
-                this.sendPacketToServer(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, motionEvent.getYaw(), motionEvent.getPitch(), motionEvent.isOnGround()));
-                positionChanged = false;
-            }
-
-            ++this.positionUpdateTicks;
-
-            if (positionChanged) {
-                this.lastReportedPosX = motionEvent.getX();
-                this.lastReportedPosY = motionEvent.getY();
-                this.lastReportedPosZ = motionEvent.getZ();
-                this.positionUpdateTicks = 0;
-            }
-
-            if (lookChanged) {
-                this.lastReportedYaw = motionEvent.getYaw();
-                this.lastReportedPitch = motionEvent.getPitch();
-            }
         }
     }
 

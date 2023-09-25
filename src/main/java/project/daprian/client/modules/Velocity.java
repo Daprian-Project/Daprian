@@ -28,6 +28,8 @@ public class Velocity extends Module {
 
     @Listen
     public void onPacket(PacketEvent event) {
+        setSuffix(() -> String.format("%s (%s)", mode.getValue().name(), mc.thePlayer.hurtTime));
+
         if (event.getPacket() instanceof S12PacketEntityVelocity) {
             S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
 

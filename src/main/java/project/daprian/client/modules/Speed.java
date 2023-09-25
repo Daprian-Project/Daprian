@@ -21,6 +21,8 @@ public class Speed extends Module {
 
     @Listen
     public void onMotion(MotionEvent event) {
+        setSuffix(() -> "Basic");
+
         if (MovementUtil.isMoving()) {
             MovementUtil.Strafe(speed.getValue() / 10);
 

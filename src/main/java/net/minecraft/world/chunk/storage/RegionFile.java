@@ -202,7 +202,9 @@ public class RegionFile
 
             if (j != 0 && k == l)
             {
-                this.write(j, data, length);
+                try {
+                    this.write(j, data, length);
+                } catch (Exception ignore) {}
             }
             else
             {

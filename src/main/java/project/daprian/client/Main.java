@@ -8,9 +8,10 @@ import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import project.daprian.client.gui.dropdown.ClickGui;
-import project.daprian.systems.command.CommandManager;
+import project.daprian.systems.manager.CommandManager;
 import project.daprian.systems.event.Event;
-import project.daprian.systems.module.ModuleManager;
+import project.daprian.systems.manager.FontManager;
+import project.daprian.systems.manager.ModuleManager;
 
 @Getter
 public class Main {
@@ -18,13 +19,14 @@ public class Main {
     private static Main instance;
 
     private final String name = "Daprian";
-    private final String version = "0.0.1";
-    private final String build = "092123";
+    private final String version = "1.0.2";
+    private final String build = "092423";
 
     private final Logger logger = LogManager.getLogger();
     private final PubSub<Event> pubSub = PubSub.newInstance(logger::error);
     private final ModuleManager moduleManager = new ModuleManager();
     private final CommandManager commandManager = new CommandManager();
+    private final FontManager fontManager = new FontManager();
     private final ClickGui clickGui;
 
     public Main() {
@@ -33,6 +35,7 @@ public class Main {
         TaskLoader taskLoader = new TaskLoader();
         taskLoader.scanTasks(moduleManager);
         taskLoader.scanTasks(commandManager);
+        taskLoader.scanTasks(fontManager);
         taskLoader.executeTasks(true);
 
         clickGui = new ClickGui();

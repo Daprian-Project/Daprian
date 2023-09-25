@@ -15,8 +15,7 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 @Getter
-public class Module {
-
+public class Module extends Toggleable {
     private final Info info;
 
     private final String name;
@@ -29,7 +28,6 @@ public class Module {
     private Supplier<String> suffix = () -> "";
 
     private final ArrayList<Setting<?>> settings = new ArrayList<>();
-    private boolean enabled;
 
     public Module() {
         this.info = getClass().getAnnotation(Info.class);
@@ -49,41 +47,6 @@ public class Module {
             });
 
             settings.add(bind);
-        }
-    }
-
-    protected void onEnable() {}
-    protected void onDisable() {}
-
-    public void Toggle() {
-        enabled = !enabled;
-
-        if (enabled) {
-            Main.getInstance().getPubSub().subscribe(this);
-        } else {
-            Main.getInstance().getPubSub().unsubscribe(this);
-        }
-
-        commonToggleAction();
-    }
-
-    public void Toggle(boolean state) {
-        enabled = state;
-
-        if (enabled) {
-            Main.getInstance().getPubSub().subscribe(this);
-        } else {
-            Main.getInstance().getPubSub().unsubscribe(this);
-        }
-
-        commonToggleAction();
-    }
-
-    private void commonToggleAction() {
-        if (enabled) {
-            onEnable();
-        } else {
-            onDisable();
         }
     }
 
@@ -112,7 +75,7 @@ public class Module {
     @Target(ElementType.TYPE)
     public @interface Info {
         String name();
-        String description() default "My man so dumb he cant make a description for a fokin module 😭";
+        String description() default "No description provided.";
         Category category();
         boolean bindable();
         int bind() default 0;

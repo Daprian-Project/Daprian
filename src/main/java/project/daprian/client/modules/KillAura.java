@@ -14,6 +14,7 @@ import project.daprian.systems.event.State;
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
+import project.daprian.utility.MathUtil;
 import project.daprian.utility.MovementUtil;
 import project.daprian.utility.TimeUtil;
 import project.daprian.utility.rotation.Angle;
@@ -57,7 +58,11 @@ public class KillAura extends Module {
 
         blocking = false;
 
+        setSuffix(() -> "");
+
         if (currentTarget == null) return;
+
+        setSuffix(() -> String.format("%s (%s %s)", currentTarget.getName(), MathUtil.roundDecimalPlaces(currentTarget.getHealth(), 2), currentTarget.hurtTime));
 
         float distanceToEntity = currentTarget.getDistanceToEntity(mc.thePlayer);
         blocking = distanceToEntity <= blockRange.getValue();

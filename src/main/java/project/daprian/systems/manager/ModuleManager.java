@@ -1,9 +1,10 @@
-package project.daprian.systems.module;
+package project.daprian.systems.manager;
 
 import lombok.Getter;
 import me.daprian.tasks.Tasked;
 import project.daprian.client.Main;
 import project.daprian.client.modules.*;
+import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
 
 import java.lang.reflect.Field;
@@ -23,7 +24,6 @@ public class ModuleManager {
         add(new Flight());
         add(new Velocity());
         add(new Chams());
-
         moduleHashMap.values().forEach(this::addOptionsFromFields);
 
         getModule(VanillaTweaks.class).Toggle();

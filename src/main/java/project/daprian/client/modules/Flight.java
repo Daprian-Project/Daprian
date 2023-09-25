@@ -22,6 +22,7 @@ public class Flight extends Module {
 
     @Listen
     public void onMotion(MotionEvent event) {
+        setSuffix(() -> "Basic");
         mc.thePlayer.motionY = 0;
 
         if (MovementUtil.isMoving()) {

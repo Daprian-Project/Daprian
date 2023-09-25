@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import org.lwjgl.BufferUtils;
@@ -121,6 +122,36 @@ public class RenderUtil  {
         GL11.glColor4f(1.0f, 1, 1, 1.0f);
         Minecraft.getMinecraft().getTextureManager().bindTexture(skin);
         Gui.drawScaledCustomSizeModalRect((int) x, (int) y, 8.0f, 8.0f, 8, 8, (int) width, (int) height, 64.0f, 64.0f);
+    }
+
+    public static void pushScissor(double x, double y, double width, double height) {
+        width = MathHelper.clamp_double(width, 0, width);
+        height = MathHelper.clamp_double(height, 0, height);
+
+        glPushAttrib(GL_SCISSOR_BIT);
+        {
+            scissorRect(x, y, width, height);
+            glEnable(GL_SCISSOR_TEST);
+        }
+    }
+
+    public static void scissorRect(double x, double y, double width, double height) {
+        ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
+        final double scale = sr.getScaleFactor();
+
+        y = sr.getScaledHeight() - y;
+
+        x *= scale;
+        y *= scale;
+        width *= scale;
+        height *= scale;
+
+        glScissor((int) x, (int) (y - height), (int) width, (int) height);
+    }
+
+    public static void popScissor() {
+        glDisable(GL_SCISSOR_TEST);
+        glPopAttrib();
     }
 
     public static void drawESP(AxisAlignedBB axisAlignedBB, Color color, float lineWidth) {

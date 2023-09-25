@@ -1,9 +1,10 @@
-package project.daprian.systems.command;
+package project.daprian.systems.manager;
 
 import lombok.Getter;
 import me.daprian.tasks.Tasked;
 import project.daprian.client.Main;
 import project.daprian.client.commands.SetValue;
+import project.daprian.systems.command.Command;
 
 import java.util.ArrayList;
 

@@ -350,7 +350,7 @@ public class PasswordField extends Gui
                 if (var5) {
                     var4.substring(0, var2);
                 }
-                var9 = Minecraft.getMinecraft().fontRendererObj.drawString(this.text.replaceAll("(?s).", "*"), var7, var8, var1);
+                var9 = (int) Minecraft.getMinecraft().fontRendererObj.drawString(this.text.replaceAll("(?s).", "*"), var7, var8, var1);
             }
             final boolean var10 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
             int var11 = var9;
