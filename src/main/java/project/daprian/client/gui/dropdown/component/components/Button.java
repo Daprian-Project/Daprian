@@ -2,6 +2,7 @@ package project.daprian.client.gui.dropdown.component.components;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Map;
 
 import lombok.Getter;
 import net.minecraft.client.gui.FontRenderer;
@@ -10,10 +11,8 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.Gui;
 import project.daprian.client.gui.dropdown.component.Component;
 import project.daprian.client.gui.dropdown.component.Frame;
+import project.daprian.client.gui.dropdown.component.components.sub.*;
 import project.daprian.client.gui.dropdown.component.components.sub.Checkbox;
-import project.daprian.client.gui.dropdown.component.components.sub.Keybind;
-import project.daprian.client.gui.dropdown.component.components.sub.Mode;
-import project.daprian.client.gui.dropdown.component.components.sub.Slider;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.*;
 
@@ -42,10 +41,12 @@ public class Button extends Component {
 				subcomponents.add(new Checkbox((Setting<Boolean>) setting, this));
 			if (setting.getValue() instanceof Number)
 				this.subcomponents.add(new Slider((Setting<Number>) setting, this));
-			if (setting.getValue() instanceof Enum<?>)
+			if (setting.getValue() instanceof Enum<?> && !(setting.getValue() instanceof ColorType))
 				this.subcomponents.add(new Mode((Setting<Enum<?>>) setting, this));
 			if (setting.getValue() instanceof Bind)
 				this.subcomponents.add(new Keybind((Setting<Bind>) setting, this));
+			if (setting.getValue() instanceof ColorType)
+				this.subcomponents.add(new Accent((Setting<ColorType<?>>) setting, this));
 		}
 	}
 

@@ -19,8 +19,8 @@ public class Main {
     private static Main instance;
 
     private final String name = "Daprian";
-    private final String version = "1.0.2";
-    private final String build = "092423";
+    private final String version = "1.0.3";
+    private final String build = "092523";
 
     private final Logger logger = LogManager.getLogger();
     private final PubSub<Event> pubSub = PubSub.newInstance(logger::error);

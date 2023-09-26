@@ -1706,13 +1706,13 @@ public abstract class EntityLivingBase extends Entity
                     }
 
                     this.motionY *= 0.9800000190734863D;
-                    this.motionX *= event.getFriction();
-                    this.motionZ *= event.getFriction();
+                    this.motionX *= (double)event.getFriction();
+                    this.motionZ *= (double)event.getFriction();
                 }
                 else
                 {
                     double d1 = this.posY;
-                    this.moveFlying(strafe, forward, 0.02F, rotationYaw);
+                    this.moveFlying(strafe, forward, 0.02F, this.rotationYaw);
                     this.moveEntity(this.motionX, this.motionY, this.motionZ);
                     this.motionX *= 0.5D;
                     this.motionY *= 0.5D;
@@ -1748,7 +1748,7 @@ public abstract class EntityLivingBase extends Entity
                     f2 += (this.getAIMoveSpeed() * 1.0F - f2) * f3 / 3.0F;
                 }
 
-                this.moveFlying(strafe, forward, f2, rotationYaw);
+                this.moveFlying(strafe, forward, f2, this.rotationYaw);
                 this.moveEntity(this.motionX, this.motionY, this.motionZ);
                 this.motionX *= (double)f1;
                 this.motionY *= 0.800000011920929D;
