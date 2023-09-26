@@ -1,15 +1,17 @@
 [1.0.3]
 ~ More HUD
 + Color Setting
++ Fonts
 
 [1.0.2]
-~ HUD
-+ Flight
-+ Speed
 + Velocity
 + KillAura
 + Chams
 + ESP
++ HUD
+
+[1.0.0]
++ Entity Culling
 + Bobbing
-+ Enitty Culling
-+ Fonts
++ Flight
++ Speed
