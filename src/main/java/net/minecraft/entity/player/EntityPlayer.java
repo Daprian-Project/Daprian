@@ -6,6 +6,8 @@ import com.mojang.authlib.GameProfile;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
+import lombok.Getter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockDirectional;
@@ -153,7 +155,11 @@ public abstract class EntityPlayer extends EntityLivingBase
 
     /**
      * This is the item that is in use when the player is holding down the useItemButton (e.g., bow, food, sword)
+     * -- GETTER --
+     *  returns the ItemStack containing the itemInUse
+
      */
+    @Getter
     private ItemStack itemInUse;
 
     /**
@@ -181,7 +187,7 @@ public abstract class EntityPlayer extends EntityLivingBase
         this.inventoryContainer = new ContainerPlayer(this.inventory, !worldIn.isRemote, this);
         this.openContainer = this.inventoryContainer;
         BlockPos blockpos = worldIn.getSpawnPoint();
-        this.setLocationAndAngles((double)blockpos.getX() + 0.5D, (double)(blockpos.getY() + 1), (double)blockpos.getZ() + 0.5D, 0.0F, 0.0F);
+        this.setLocationAndAngles((double)blockpos.getX() + 0.5D, blockpos.getY() + 1, (double)blockpos.getZ() + 0.5D, 0.0F, 0.0F);
         this.unused180 = 180.0F;
         this.fireResistance = 20;
     }
@@ -196,18 +202,10 @@ public abstract class EntityPlayer extends EntityLivingBase
     protected void entityInit()
     {
         super.entityInit();
-        this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
-        this.dataWatcher.addObject(17, Float.valueOf(0.0F));
-        this.dataWatcher.addObject(18, Integer.valueOf(0));
+        this.dataWatcher.addObject(16, (byte) 0);
+        this.dataWatcher.addObject(17, 0.0F);
+        this.dataWatcher.addObject(18, 0);
         this.dataWatcher.addObject(10, Byte.valueOf((byte)0));
-    }
-
-    /**
-     * returns the ItemStack containing the itemInUse
-     */
-    public ItemStack getItemInUse()
-    {
-        return this.itemInUse;
     }
 
     /**

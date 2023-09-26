@@ -13,7 +13,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.BaseAttributeMap;
@@ -27,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -55,6 +55,7 @@ import net.minecraft.world.WorldServer;
 import project.daprian.client.Main;
 import project.daprian.client.events.JumpEvent;
 import project.daprian.client.events.StrafeEvent;
+import project.daprian.client.modules.KillAura;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -1648,11 +1649,14 @@ public abstract class EntityLivingBase extends Entity
                         f5 = this.jumpMovementFactor;
                     }
 
-                    StrafeEvent event = new StrafeEvent(forward, strafe, f4, f5, this.rotationYaw);
+                    StrafeEvent event = new StrafeEvent(forward, strafe, f4, f5, rotationYaw);
 
                     if(this == Minecraft.getMinecraft().thePlayer) {
                         Main.getInstance().getPubSub().publish(event);
+                        if(event.isCancelled()) return;
                     }
+
+
 
                     this.moveFlying(event.getStrafe(), event.getForward(), event.getAttributeSpeed(), event.getYaw());
                     f4 = 0.91F;

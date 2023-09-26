@@ -54,6 +54,7 @@ import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
 import project.daprian.client.Main;
 import project.daprian.client.events.MotionEvent;
+import project.daprian.client.events.NoSlowEvent;
 import project.daprian.systems.event.State;
 import project.daprian.client.events.UpdateEvent;
 import project.daprian.systems.command.Command;
@@ -820,9 +821,21 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if (this.isUsingItem() && !this.isRiding())
         {
-            this.movementInput.moveStrafe *= 0.2F;
-            this.movementInput.moveForward *= 0.2F;
-            this.sprintToggleTimer = 0;
+            float strafe = 0.2f;
+            float forward = 0.2f;
+
+            NoSlowEvent event = new NoSlowEvent(strafe,forward);
+
+            if(!event.isCancelled()){
+                strafe = event.getStrafeMultiplier();
+                forward = event.getForwardMultiplier();
+
+                this.movementInput.moveStrafe *= strafe;
+                this.movementInput.moveForward *= forward;
+                this.sprintToggleTimer = 0;
+            }
+
+
         }
 
         this.pushOutOfBlocks(this.posX - (double)this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double)this.width * 0.35D);

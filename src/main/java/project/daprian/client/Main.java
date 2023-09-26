@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.Display;
 import project.daprian.client.gui.dropdown.ClickGui;
 import project.daprian.systems.manager.CommandManager;
 import project.daprian.systems.event.Event;
@@ -31,7 +32,6 @@ public class Main {
 
     public Main() {
         instance = this;
-
         TaskLoader taskLoader = new TaskLoader();
         taskLoader.scanTasks(moduleManager);
         taskLoader.scanTasks(commandManager);
@@ -39,6 +39,7 @@ public class Main {
         taskLoader.executeTasks(true);
 
         clickGui = new ClickGui();
+        Display.setTitle(String.format("%s Client (%s %s)",getName(), getVersion(), getBuild()));
     }
 
     public void chat(String message, boolean raw) {

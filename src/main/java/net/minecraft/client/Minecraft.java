@@ -124,9 +124,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -187,6 +185,7 @@ import org.lwjgl.util.glu.GLU;
 import project.daprian.client.Main;
 import project.daprian.client.events.TickEvent;
 import project.daprian.client.events.WorldLoadEvent;
+import project.daprian.client.modules.FastPlace;
 import project.daprian.systems.module.Module;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
@@ -380,7 +379,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         this.proxy = gameConfig.userInfo.proxy == null ? Proxy.NO_PROXY : gameConfig.userInfo.proxy;
         this.sessionService = (new YggdrasilAuthenticationService(gameConfig.userInfo.proxy, UUID.randomUUID().toString())).createMinecraftSessionService();
         this.session = gameConfig.userInfo.session;
-        logger.info("Starting Minecraft as " + session.getUsername());
+        logger.info("Starting Daprian Client");
         this.isDemo = gameConfig.gameInfo.isDemo;
         this.displayWidth = gameConfig.displayInfo.width > 0 ? gameConfig.displayInfo.width : 1;
         this.displayHeight = gameConfig.displayInfo.height > 0 ? gameConfig.displayInfo.height : 1;
@@ -629,7 +628,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     private void createDisplay() throws LWJGLException
     {
         Display.setResizable(true);
-        Display.setTitle("Minecraft 1.8.9");
+        Display.setTitle("Loading...");
 
         try
         {
@@ -1123,7 +1122,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         for (int j = 0; j < this.timer.elapsedTicks; ++j)
         {
             Main.getInstance().getPubSub().publish(new TickEvent(theWorld != null, j));
-
             this.runTick();
         }
 
@@ -1578,7 +1576,22 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     {
         if (!this.playerController.getIsHittingBlock())
         {
-            this.rightClickDelayTimer = 0;
+            if(Main.getInstance().getModuleManager().getModule(FastPlace.class).isEnabled() && getMinecraft().thePlayer.getHeldItem() != null) {
+                switch (FastPlace.modes.getValue()) {
+                    case All:
+                        this.rightClickDelayTimer = FastPlace.delay.getValue();
+                        break;
+                    case Block:
+                        if (getMinecraft().thePlayer.getHeldItem().getItem() instanceof ItemBlock)
+                            this.rightClickDelayTimer = FastPlace.delay.getValue();
+                        else
+                            this.rightClickDelayTimer = 4;
+                        break;
+                }
+            }
+            else this.rightClickDelayTimer = 4;
+
+
             boolean flag = true;
             ItemStack itemstack = this.thePlayer.inventory.getCurrentItem();
 
@@ -1905,7 +1918,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             {
                 --this.leftClickCounter;
             }
-
             this.mcProfiler.endStartSection("keyboard");
 
             while (Keyboard.next())

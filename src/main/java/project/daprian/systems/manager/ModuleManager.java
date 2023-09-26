@@ -24,6 +24,10 @@ public class ModuleManager {
         add(new Flight());
         add(new Velocity());
         add(new Chams());
+        add(new NoSlow());
+        add(new ChestStealer());
+        add(new AutoArmor());
+        add(new FastPlace());
         moduleHashMap.values().forEach(this::addOptionsFromFields);
 
         getModule(VanillaTweaks.class).Toggle();
