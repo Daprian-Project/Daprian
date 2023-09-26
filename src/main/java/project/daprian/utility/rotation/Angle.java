@@ -32,6 +32,34 @@ public class Angle {
 
         return from + difference;
     }
+    public static float[] getRotationsToPosition(double x, double y, double z) {
+        double deltaX = x - mc.thePlayer.posX;
+        double deltaY = y - mc.thePlayer.posY - mc.thePlayer.getEyeHeight();
+        double deltaZ = z - mc.thePlayer.posZ;
+
+        double horizontalDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+
+        float yaw = (float) Math.toDegrees(-Math.atan2(deltaX, deltaZ));
+        float pitch = (float) Math.toDegrees(-Math.atan2(deltaY, horizontalDistance));
+
+        return new float[] {yaw, pitch};
+    }
+
+
+    public static float[] getRotationsToEntity(EntityLivingBase entity, boolean usePartialTicks) {
+        float partialTicks = mc.timer.renderPartialTicks;
+
+        double entityX = usePartialTicks ? entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks : entity.posX;
+        double entityY = usePartialTicks ? entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks : entity.posY;
+        double entityZ = usePartialTicks ? entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks : entity.posZ;
+
+        double yDiff = mc.thePlayer.posY - entityY;
+
+        double finalEntityY = yDiff >= 0 ? entityY + entity.getEyeHeight() : -yDiff < mc.thePlayer.getEyeHeight() ? mc.thePlayer.posY + mc.thePlayer.getEyeHeight() : entityY;
+
+        return getRotationsToPosition(entityX, finalEntityY, entityZ);
+    }
+
 
     public static Rotations smoothRotations(EntityLivingBase currentTarget, Rotations currentRotations){
         currentRotations = new Rotations(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
