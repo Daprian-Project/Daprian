@@ -1,5 +1,9 @@
 [1.0.3]
 ~ More HUD
++ Auto Armor
++ Fast Place
++ Chest Stealer
++ NoSlow Event
 + Color Setting
 + Main Menu
 + Fonts
@@ -12,6 +16,7 @@
 + HUD
 
 [1.0.0]
++ Client Base :skull:
 + Entity Culling
 + Bobbing
 + Flight
