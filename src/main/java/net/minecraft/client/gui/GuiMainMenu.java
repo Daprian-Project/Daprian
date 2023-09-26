@@ -36,9 +36,9 @@ public class GuiMainMenu extends GuiScreen {
 
     @SneakyThrows
     private void drawChangelog() {
-        scrollHelper.setStep(50);
-        scrollHelper.setElementsHeight(200);
-        scrollHelper.setMaxScroll(200);
+        scrollHelper.setStep(10);
+        scrollHelper.setElementsHeight(height - 12);
+        scrollHelper.setMaxScroll(scrollHelper.getElementsHeight());
         scrollHelper.setFlag(true);
         float sc = scrollHelper.getScroll();
 

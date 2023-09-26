@@ -6,7 +6,7 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 
 public class ScrollUtil {
-    private float step = 0,real = 0,scroll = 0,maxScroll = 0,speed = 300F;
+    private float step = 0, real = 0, scroll = 0, maxScroll = 0, speed = 300F;
 
     @Getter
     private float elementsHeight = 0;
@@ -18,19 +18,24 @@ public class ScrollUtil {
      */
     public float getScroll() {
         int wheel = Mouse.getDWheel();
+
         float delta = 1f / Minecraft.getDebugFPS();
+
         if(flag)
             real += wheel / 120f * step;
-        float divider = delta*2*Math.min(speed, elementsHeight);
+
+        float divider = delta * 2 * Math.min(speed, elementsHeight);
+
         if(scroll > real) {
-            scroll -= ((scroll - real) / 50) * divider;
+            scroll -= ((scroll - real) / 100) * divider;
         }
+
         if(scroll < real) {
-            scroll += ((real - scroll) / 50) * divider;
+            scroll += ((real - scroll) / 100) * divider;
         }
 
         real = MathHelper.clamp_float(real, 0, elementsHeight > maxScroll ? elementsHeight - maxScroll : 0);
-        real = ((int)(real*100))/100f;
+        real = ((int) (real * 100)) / 100f;
         return scroll;
     }
 
