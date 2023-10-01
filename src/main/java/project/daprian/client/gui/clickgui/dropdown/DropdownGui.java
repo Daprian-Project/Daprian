@@ -1,4 +1,4 @@
-package project.daprian.client.gui.dropdown;
+package project.daprian.client.gui.clickgui.dropdown;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -9,20 +9,20 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Keyboard;
 import project.daprian.client.Main;
-import project.daprian.client.gui.dropdown.component.Component;
-import project.daprian.client.gui.dropdown.component.Frame;
-import project.daprian.client.gui.dropdown.component.components.Button;
+import project.daprian.client.gui.clickgui.dropdown.component.Component;
+import project.daprian.client.gui.clickgui.dropdown.component.components.Button;
+import project.daprian.client.gui.clickgui.dropdown.component.Frame;
 import project.daprian.systems.font.CBFontRenderer;
 import project.daprian.systems.module.Category;
 import project.daprian.utility.RenderUtil;
 
-public class ClickGui extends GuiScreen {
+public class DropdownGui extends GuiScreen {
 
 	public ArrayList<Frame> frames;
 	private String typedString = "";
 	private boolean typed;
 
-	public ClickGui() {
+	public DropdownGui() {
 		this.frames = new ArrayList<>();
 		int frameX = 5;
 		for(Category category : Category.values()) {
@@ -35,7 +35,11 @@ public class ClickGui extends GuiScreen {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawDefaultBackground();
+
+		if (mc.currentScreen instanceof DropdownGui) {
+			this.drawDefaultBackground();
+		}
+
 		this.drawSearchBar();
 
 		for(Frame frame : frames) {
@@ -47,11 +51,11 @@ public class ClickGui extends GuiScreen {
 		}
 	}
 
-	private void drawSearchBar() {
-		CBFontRenderer fr = Main.getInstance().getFontManager().getMinecraft();
-		ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+	CBFontRenderer fr = Main.getInstance().getFontManager().getMinecraft();
 
+	private void drawSearchBar() {
 		String string = typed ? "Press Return to stop searching!" : "Press Return to search!";
+		ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
 		float centerX = resolution.getScaledWidth() / 2f;
 		float centerY = resolution.getScaledHeight() / 2f;
 
@@ -155,12 +159,8 @@ public class ClickGui extends GuiScreen {
 			for (Component component : frame.getComponents()) {
 				if (component instanceof Button) {
 					Button button = (Button) component;
-					boolean wasOpen = button.open;
-					button.setVisible(RenderUtil.containsIgnoreCase(button.getMod().getName(), typedString));
-
-					if (!wasOpen && button.open) {
-						typed = false;
-					}
+					button.setFocused(RenderUtil.containsIgnoreCase(button.getMod().getName(), typedString));
+					frame.setOpen(RenderUtil.containsIgnoreCase(button.getMod().getName(), typedString));
 				}
 			}
 		}
@@ -171,12 +171,7 @@ public class ClickGui extends GuiScreen {
 			for (Component component : frame.getComponents()) {
 				if (component instanceof Button) {
 					Button button = (Button) component;
-					boolean wasOpen = button.open;
-					button.setVisible(true);
-
-					if (!wasOpen && button.open) {
-						typed = false;
-					}
+					button.setFocused(false);
 				}
 			}
 		}

@@ -3,6 +3,7 @@ package project.daprian.systems.manager;
 import lombok.Getter;
 import me.daprian.tasks.Tasked;
 import project.daprian.client.Main;
+import project.daprian.client.commands.Friends;
 import project.daprian.client.commands.SetValue;
 import project.daprian.systems.command.Command;
 
@@ -15,6 +16,7 @@ public class CommandManager {
     @Tasked(taskName = "Init Command Manager")
     public void Init() {
         add(new SetValue());
+        add(new Friends());
     }
 
     private void add(Command command) {

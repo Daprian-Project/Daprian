@@ -33,13 +33,12 @@ public abstract class Command {
 
     public abstract void Execute(String[] args);
 
-
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface Info {
         String name();
         String usage();
         String[] alias();
-        String description() default "Once again too dumb to make descriptions";
+        String description() default "No description provided.";
     }
 }

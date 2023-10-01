@@ -3,7 +3,8 @@ package net.minecraft.client.gui;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.awt.Toolkit;
+
+import java.awt.*;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -12,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +45,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import project.daprian.utility.MathUtil;
+import project.daprian.utility.PolygonUtil;
+import project.daprian.utility.TimeUtil;
+import project.daprian.utility.animations.Animation;
+import project.daprian.utility.animations.Direction;
+import project.daprian.utility.animations.impl.EaseBackIn;
 import tv.twitch.chat.ChatUserInfo;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback
@@ -669,10 +678,13 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         if (this.mc.theWorld != null)
         {
             this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
+            drawCustomBackground();
         }
         else
         {
-            this.drawBackground(tint);
+            int colorBackground = new Color(15, 15, 15).getRGB();
+            drawRect(0, 0, width, height, colorBackground);
+            drawCustomBackground();
         }
     }
 
@@ -785,5 +797,55 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
     public void onResize(Minecraft mcIn, int w, int h)
     {
         this.setWorldAndResolution(mcIn, w, h);
+    }
+
+    ArrayList<Particle> particles = new ArrayList<>();
+
+    protected void drawCustomBackground() {
+        if (particles.size() < 30) {
+            int x = MathUtil.randomBetween(0, width);
+            int y = MathUtil.randomBetween(0, height);
+            int sec = MathUtil.randomBetween(5, 15);
+            particles.add(new Particle(x, y, Duration.ofSeconds(sec)));
+        }
+
+        particles.forEach(Particle::render);
+        particles.forEach(Particle::update);
+    }
+
+    public static class Particle {
+        private final double x;
+        private final double y;
+        private final Duration duration;
+        private final TimeUtil stopwatch;
+        private double scale = 1;
+        Animation animation = null;
+
+        public Particle(double x, double y, Duration duration) {
+            this.x = x;
+            this.y = y;
+            this.duration = duration;
+            this.stopwatch = new TimeUtil();
+        }
+
+        public void render() {
+            PolygonUtil.polygonCentered(x, y, scale, 8, true, Color.white);
+        }
+
+        public void update() {
+            if (stopwatch.hasReached(duration)) {
+                if (animation == null) {
+                    double newScale = MathUtil.randomBetween(5, 50);
+                    animation = new EaseBackIn(1000, newScale, 5, scale > newScale  ? Direction.BACKWARDS : Direction.FORWARDS);
+                }
+
+                scale = animation.getOutput();
+
+                if (animation.finished(animation.getDirection())) {
+                    animation = null;
+                    stopwatch.reset();
+                }
+            }
+        }
     }
 }

@@ -1,9 +1,9 @@
-package project.daprian.client.gui.dropdown.component.components;
+package project.daprian.client.gui.clickgui.dropdown.component.components;
 
 
 import lombok.Getter;
 import net.minecraft.client.gui.Gui;
-import project.daprian.client.gui.dropdown.component.Component;
+import project.daprian.client.gui.clickgui.dropdown.component.Component;
 import project.daprian.systems.setting.Setting;
 
 import java.awt.*;

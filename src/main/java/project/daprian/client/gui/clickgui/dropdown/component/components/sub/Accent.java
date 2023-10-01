@@ -1,8 +1,8 @@
-package project.daprian.client.gui.dropdown.component.components.sub;
+package project.daprian.client.gui.clickgui.dropdown.component.components.sub;
 
 import net.minecraft.client.gui.FontRenderer;
-import project.daprian.client.gui.dropdown.component.components.Button;
-import project.daprian.client.gui.dropdown.component.components.SetComp;
+import project.daprian.client.gui.clickgui.dropdown.component.components.Button;
+import project.daprian.client.gui.clickgui.dropdown.component.components.SetComp;
 import project.daprian.systems.setting.ColorType;
 import project.daprian.systems.setting.Setting;
 import project.daprian.utility.ColorUtils;

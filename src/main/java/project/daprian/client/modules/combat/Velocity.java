@@ -86,7 +86,7 @@ public class Velocity extends Module {
             double y = lastPosition.y;
             double z = lastPosition.z;
 
-            if (MathUtil.endsWithDigit(velocityTicks, 5) && velocityTicks < 25) {
+            if (velocityTicks == 5) {
                 System.out.println("Sent");
                 mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer(true));
                 mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(x, y, z, false));

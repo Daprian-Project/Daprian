@@ -1,16 +1,17 @@
-package project.daprian.client.gui.dropdown.component;
+package project.daprian.client.gui.clickgui.dropdown.component;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import project.daprian.client.Main;
-import project.daprian.client.gui.dropdown.component.components.Button;
+import project.daprian.client.gui.clickgui.dropdown.component.components.Button;
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 
@@ -21,6 +22,8 @@ public class Frame {
 	private final Category category;
 	@Getter
 	private boolean open;
+	@Getter @Setter
+	private boolean wasOpen;
 	@Getter
 	private int width;
 	@Getter
@@ -50,7 +53,7 @@ public class Frame {
 		for(Module mod : Main.getInstance().getModuleManager().getModuleHashMap().values()) {
 			if (mod.getCategory() != cat) continue;
 
-			Button modButton = new Button(width, compHeight, mod, this, tY);
+			project.daprian.client.gui.clickgui.dropdown.component.components.Button modButton = new Button(width, compHeight, mod, this, tY);
 			this.components.add(modButton);
 			tY += modButton.getHeight();
 		}
@@ -69,6 +72,7 @@ public class Frame {
 	}
 
 	public void setOpen(boolean open) {
+		wasOpen = this.open;
 		this.open = open;
 	}
 	

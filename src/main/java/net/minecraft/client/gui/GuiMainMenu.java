@@ -4,12 +4,18 @@ import lombok.SneakyThrows;
 import net.minecraft.client.resources.I18n;
 import project.daprian.client.Main;
 import project.daprian.client.gui.alt.AltLogin;
-import project.daprian.utility.RenderUtil;
-import project.daprian.utility.ScrollUtil;
-import project.daprian.utility.URLUtil;
+import project.daprian.utility.*;
+import project.daprian.utility.animations.Animation;
+import project.daprian.utility.animations.Direction;
+import project.daprian.utility.animations.impl.DecelerateAnimation;
+import project.daprian.utility.animations.impl.EaseBackIn;
+import project.daprian.utility.animations.impl.EaseInOutQuad;
 
+import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GuiMainMenu extends GuiScreen {
@@ -20,16 +26,19 @@ public class GuiMainMenu extends GuiScreen {
     private static final int BUTTON_ALT_LOGIN_ID = 14;
     ScrollUtil scrollHelper = new ScrollUtil();
 
+    @Override
     public void initGui() {
+        particles.clear();
         int centerY = this.height / 4 + 48;
         int yOffset = 24;
 
         this.addSingleplayerMultiplayerButtons(centerY, yOffset);
     }
 
+    @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        int colorBackground = new Color(15, 15, 15).getRGB();
-        drawRect(0, 0, width, height, colorBackground);
+        drawDefaultBackground();
+
         drawChangelog();
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

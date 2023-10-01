@@ -315,14 +315,12 @@ public class EntityPlayerSP extends AbstractClientPlayer
             String[] args = finalMessage[1].split(" ");
             System.out.println(Arrays.toString(args));
             for (Command command : Main.getInstance().getCommandManager().getCommands()) {
-                if (command.getName().equalsIgnoreCase(args[0]) || Arrays.stream(command.getAlias()).allMatch(Predicate.isEqual(args[0]))) {
+                if (command.getName().equalsIgnoreCase(args[0])) {
                     try {
                         command.Execute(args);
                     } catch (CommandException e) {
                         throw new CommandException(command.getName(), command.getUsage());
                     }
-                } else {
-                    Main.getInstance().chat(String.format("%s Not found!", args[0]), false);
                 }
             }
 

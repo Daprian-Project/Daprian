@@ -1,4 +1,4 @@
-package project.daprian.client.gui.dropdown.component;
+package project.daprian.client.gui.clickgui.dropdown.component;
 
 import lombok.Getter;
 import net.minecraft.client.gui.FontRenderer;

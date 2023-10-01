@@ -1,10 +1,8 @@
 package project.daprian.client.events;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import project.daprian.systems.event.Cancellable;
-import project.daprian.systems.event.Event;
 
 @Getter
 @Setter

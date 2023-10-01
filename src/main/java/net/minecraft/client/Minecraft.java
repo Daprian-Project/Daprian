@@ -1963,7 +1963,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                     else
                     {
                         if (k == Keyboard.KEY_RSHIFT) {
-                            this.displayGuiScreen(Main.getInstance().getClickGui());
+                            this.displayGuiScreen(Main.getInstance().getDropdownGui());
+                            return;
                         }
 
                         for (Module module : Main.getInstance().getModuleManager().getModuleHashMap().values()) {

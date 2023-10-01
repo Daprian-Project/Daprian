@@ -8,10 +8,11 @@ import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
-import project.daprian.client.gui.dropdown.ClickGui;
+import project.daprian.client.gui.clickgui.dropdown.DropdownGui;
 import project.daprian.systems.manager.CommandManager;
 import project.daprian.systems.event.Event;
 import project.daprian.systems.manager.FontManager;
+import project.daprian.systems.manager.FriendManager;
 import project.daprian.systems.manager.ModuleManager;
 
 @Getter
@@ -28,7 +29,8 @@ public class Main {
     private final ModuleManager moduleManager = new ModuleManager();
     private final CommandManager commandManager = new CommandManager();
     private final FontManager fontManager = new FontManager();
-    private final ClickGui clickGui;
+    private final FriendManager friendManager = new FriendManager();
+    private final DropdownGui dropdownGui;
 
     public Main() {
         instance = this;
@@ -38,7 +40,8 @@ public class Main {
         taskLoader.scanTasks(fontManager);
         taskLoader.executeTasks(true);
 
-        clickGui = new ClickGui();
+        dropdownGui = new DropdownGui();
+
         Display.setTitle(String.format("%s Client (%s %s)",getName(), getVersion(), getBuild()));
     }
 

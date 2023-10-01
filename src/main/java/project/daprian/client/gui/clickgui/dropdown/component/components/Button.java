@@ -1,4 +1,4 @@
-package project.daprian.client.gui.dropdown.component.components;
+package project.daprian.client.gui.clickgui.dropdown.component.components;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -10,10 +10,10 @@ import net.minecraft.client.gui.FontRenderer;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.Gui;
-import project.daprian.client.gui.dropdown.component.Component;
-import project.daprian.client.gui.dropdown.component.Frame;
-import project.daprian.client.gui.dropdown.component.components.sub.*;
-import project.daprian.client.gui.dropdown.component.components.sub.Checkbox;
+import project.daprian.client.gui.clickgui.dropdown.component.Component;
+import project.daprian.client.gui.clickgui.dropdown.component.Frame;
+import project.daprian.client.gui.clickgui.dropdown.component.components.sub.*;
+import project.daprian.client.gui.clickgui.dropdown.component.components.sub.Checkbox;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.*;
 
@@ -30,7 +30,7 @@ public class Button extends Component {
 	private final int height;
 
 	@Getter @Setter
-	private boolean visible;
+	private boolean focused;
 
 	public Button(int width, int height, Module mod, Frame parent, int offset) {
 		super(width, height);
@@ -66,9 +66,7 @@ public class Button extends Component {
 			parent.tY = parent.tY + kekY;
 		}
 
-		if (visible) {
-			offset = newOff;
-		}
+		offset = newOff;
 
 		int opY = offset + height;
 		for (SetComp<?> comp : this.openComps()) {
@@ -79,11 +77,10 @@ public class Button extends Component {
 
 	@Override
 	public void renderComponent(FontRenderer fr) {
-		if (open && !isVisible()) open = false;
-
-		if (!isVisible()) return;
-
 		Gui.drawRect(parent.getX(), this.parent.getY() + this.offset, parent.getX() + parent.getWidth(), this.parent.getY() + height + this.offset, this.mod.isEnabled() ? new Color(28, 28, 28).getRGB() : new Color(24, 24, 24).getRGB());
+
+		if (isFocused())
+			Gui.drawRect(parent.getX(), this.parent.getY() + this.offset, parent.getX() + parent.getWidth(), this.parent.getY() + height + this.offset, new Color(0, 128, 255, 90).getRGB());
 
 		GL11.glPushMatrix();
 		fr.drawString(this.mod.getName(), (parent.getX() + (isHovered ? 5 : 3)), (parent.getY() + offset + 4), -1);
@@ -112,8 +109,6 @@ public class Button extends Component {
 
 	@Override
 	public void updateComponent(int mouseX, int mouseY) {
-		if (!isVisible()) return;
-
 		this.isHovered = isMouseOnButton(mouseX, mouseY);
 		if (!this.subcomponents.isEmpty() && (!this.openComps().isEmpty())) {
 			for (SetComp<?> comp : this.openComps()) {
@@ -124,8 +119,6 @@ public class Button extends Component {
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int button) {
-		if (!isVisible()) return;
-
 		if(isMouseOnButton(mouseX, mouseY) && button == 0) {
 			this.mod.Toggle();
 		}
@@ -142,8 +135,6 @@ public class Button extends Component {
 
 	@Override
 	public void mouseReleased(int mouseX, int mouseY, int mouseButton) {
-		if (!isVisible()) return;
-
 		for(SetComp<?> comp : this.subcomponents) {
 			comp.mouseReleased(mouseX, mouseY, mouseButton);
 		}
@@ -151,8 +142,6 @@ public class Button extends Component {
 
 	@Override
 	public void keyTyped(char typedChar, int key) {
-		if (!isVisible()) return;
-
 		for(SetComp<?> comp : this.subcomponents) {
 			comp.keyTyped(typedChar, key);
 		}

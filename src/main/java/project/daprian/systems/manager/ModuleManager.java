@@ -15,6 +15,7 @@ import project.daprian.client.modules.render.Chams;
 import project.daprian.client.modules.render.ESP;
 import project.daprian.client.modules.render.HUD;
 import project.daprian.client.modules.render.VanillaTweaks;
+import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
 
@@ -69,5 +70,16 @@ public class ModuleManager {
     private void add(Module module) {
         Main.getInstance().getLogger().info(String.format("Registered %s: %s", module.getName(), module.getDescription()));
         moduleHashMap.put(module.getClass(), module);
+    }
+
+    public ArrayList<Module> getModulesIn(Category selectedCategory) {
+        ArrayList<Module> modules = new ArrayList<>();
+        for (Module module : moduleHashMap.values()) {
+            if (module.getCategory() != selectedCategory)
+                continue;
+
+            modules.add(module);
+        }
+        return modules;
     }
 }
