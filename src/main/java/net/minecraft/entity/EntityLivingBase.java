@@ -26,7 +26,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -55,7 +54,6 @@ import net.minecraft.world.WorldServer;
 import project.daprian.client.Main;
 import project.daprian.client.events.JumpEvent;
 import project.daprian.client.events.StrafeEvent;
-import project.daprian.client.modules.KillAura;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -1581,11 +1579,11 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void jump()
     {
-        double jumpY = (double)this.getJumpUpwardsMotion();
+        double jumpY = this.getJumpUpwardsMotion();
 
         if (this.isPotionActive(Potion.jump))
         {
-            jumpY += (double)((float)(this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
+            jumpY += (float)(this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
         }
 
         JumpEvent event = new JumpEvent(jumpY, this.rotationYaw, this.isSprinting());
@@ -1599,8 +1597,8 @@ public abstract class EntityLivingBase extends Entity
         if (event.isSprinting())
         {
             float f = event.getYaw() * 0.017453292F;
-            this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
-            this.motionZ += (double)(MathHelper.cos(f) * 0.2F);
+            this.motionX -= MathHelper.sin(f) * 0.2F;
+            this.motionZ += MathHelper.cos(f) * 0.2F;
         }
 
         this.isAirBorne = true;

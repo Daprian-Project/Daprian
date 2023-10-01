@@ -98,7 +98,7 @@ import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
 import project.daprian.client.Main;
 import project.daprian.client.events.RenderWorldEvent;
-import project.daprian.client.modules.VanillaTweaks;
+import project.daprian.client.modules.render.VanillaTweaks;
 
 public class EntityRenderer implements IResourceManagerReloadListener
 {

@@ -824,7 +824,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
             float strafe = 0.2f;
             float forward = 0.2f;
 
-            NoSlowEvent event = new NoSlowEvent(strafe,forward);
+            NoSlowEvent event = new NoSlowEvent(strafe, forward);
+            Main.getInstance().getPubSub().publish(event);
 
             if(!event.isCancelled()){
                 strafe = event.getStrafeMultiplier();
@@ -834,8 +835,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 this.movementInput.moveForward *= forward;
                 this.sprintToggleTimer = 0;
             }
-
-
         }
 
         this.pushOutOfBlocks(this.posX - (double)this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double)this.width * 0.35D);

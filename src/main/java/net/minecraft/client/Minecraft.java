@@ -185,7 +185,7 @@ import org.lwjgl.util.glu.GLU;
 import project.daprian.client.Main;
 import project.daprian.client.events.TickEvent;
 import project.daprian.client.events.WorldLoadEvent;
-import project.daprian.client.modules.FastPlace;
+import project.daprian.client.modules.player.FastPlace;
 import project.daprian.systems.module.Module;
 
 public class Minecraft implements IThreadListener, IPlayerUsage

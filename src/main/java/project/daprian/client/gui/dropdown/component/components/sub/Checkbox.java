@@ -22,12 +22,12 @@ public class Checkbox extends SetComp<Boolean> {
 
 		fontRenderer.drawString(this.getSetting().getName(), getParent().parent.getX() + (hovered ? 6 : 4), (getParent().parent.getY() + offset + 3), -1);
 
-		float width = 4;
-		float height = 4;
+		float width = 6;
+		float height = 6;
 		RenderUtil.drawRect(getParent().parent.getX() + getParent().parent.getWidth() - width - 4, (getParent().parent.getY() + offset + height / 2), width, height, 0xFF999999);
 
 		if(this.getSetting().getValue())
-			RenderUtil.drawRect(getParent().parent.getX() + getParent().parent.getWidth() - width - 3.5, (getParent().parent.getY() + offset + height - 1.5), width - 1, height - 1, 0xFF666666);
+			RenderUtil.drawRect(getParent().parent.getX() + getParent().parent.getWidth() - width - 3.5, (getParent().parent.getY() + offset + height - 2.5), width - 1, height - 1, 0xFF666666);
 	}
 	
 	@Override

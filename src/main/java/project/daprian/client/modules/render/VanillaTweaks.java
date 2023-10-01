@@ -1,7 +1,8 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.render;
 
 import lombok.Getter;
 import org.lwjgl.input.Keyboard;
+import project.daprian.client.Main;
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
@@ -17,6 +18,7 @@ public class VanillaTweaks extends Module {
 
     @Override
     protected void onDisable() {
+        Main.getInstance().chat("This module can't be disabled!", true);
         Toggle();
     }
 }

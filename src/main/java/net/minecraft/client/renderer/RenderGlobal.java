@@ -117,7 +117,7 @@ import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import project.daprian.client.Main;
-import project.daprian.client.modules.VanillaTweaks;
+import project.daprian.client.modules.render.VanillaTweaks;
 
 public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListener
 {

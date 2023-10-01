@@ -1,4 +1,4 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.render;
 
 import io.github.nevalackin.radbus.Listen;
 import net.minecraft.entity.EntityLivingBase;

@@ -1,4 +1,4 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.player;
 
 import io.github.nevalackin.radbus.Listen;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -17,7 +17,7 @@ import project.daprian.utility.TimeUtil;
 
 import java.time.Duration;
 
-@Module.Info(name = "AutoArmor",category = Category.Player, bindable = true)
+@Module.Info(name = "AutoArmor", category = Category.Player, bindable = true)
 public class AutoArmor extends Module {
 
 
@@ -27,6 +27,7 @@ public class AutoArmor extends Module {
 
     @Listen
     public void onUpdate(UpdateEvent event) {
+        setSuffix(() -> delay.getValue().toString());
        if (event.getState() == State.Pre || (mc.thePlayer == null && mc.thePlayer.inventory == null)) return;
 
        if (invOnly.getValue() && !(mc.currentScreen instanceof GuiInventory)) return;

@@ -1,4 +1,4 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.combat;
 
 import io.github.nevalackin.radbus.Listen;
 import lombok.Getter;
@@ -10,15 +10,12 @@ import org.lwjgl.input.Keyboard;
 import project.daprian.client.events.JumpEvent;
 import project.daprian.client.events.MotionEvent;
 import project.daprian.client.events.StrafeEvent;
-import project.daprian.systems.event.State;
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
 import project.daprian.utility.MathUtil;
-import project.daprian.utility.MovementUtil;
 import project.daprian.utility.TimeUtil;
 import project.daprian.utility.rotation.Angle;
-import project.daprian.utility.rotation.FixedRotations;
 import project.daprian.utility.rotation.Rotations;
 
 import java.time.Duration;
@@ -36,13 +33,13 @@ public class KillAura extends Module {
             .setVisible(() -> rotsModes.getValue().equals(RotsModes.Jitter)));
     private final Setting<Integer> jitterRandomValue = Setting.create(setting -> setting.setValues("Jitter Value", 10, 1, 50, 1)
             .setVisible(() -> (rotsModes.getValue().equals(RotsModes.Jitter) || rotsModes.getValue().equals(RotsModes.Testing))));
-    private final Setting<AttackMode> attackMode = Setting.create(setting -> setting.setValues("Attack Mode", AttackMode.Pre));
     private final Setting<AttackType> attackType = Setting.create(setting -> setting.setValues("Attack Type", AttackType.Player));
     private final Setting<Boolean> strafeFix = Setting.create(setting -> setting.setValues("Strafe Fix", false));
+    private final Random random = new Random();
+    private final TimeUtil stopwatch;
 
     private EntityLivingBase currentTarget;
     private Rotations currentRotations;
-    private final TimeUtil stopwatch;
 
     @Getter
     private boolean blocking;
@@ -62,55 +59,33 @@ public class KillAura extends Module {
 
         if (currentTarget == null) return;
 
-        setSuffix(() -> String.format("%s (%s %s)", currentTarget.getName(), MathUtil.roundDecimalPlaces(currentTarget.getHealth(), 2), currentTarget.hurtTime));
+        setSuffix(() -> String.format("%s %s %s", currentTarget.getName(), MathUtil.roundDecimalPlaces(currentTarget.getHealth(), 2), currentTarget.hurtTime));
 
         float distanceToEntity = currentTarget.getDistanceToEntity(mc.thePlayer);
         blocking = distanceToEntity <= blockRange.getValue();
 
         switch (rotsModes.getValue()) {
+            default:
             case Normal:
                 currentRotations = Angle.calcRotationToEntity(currentTarget);
-                event.setYaw(currentRotations.getYaw());
-                event.setPitch(currentRotations.getPitch());
-                rotate(event);
                 break;
 
             case Smooth:
                 currentRotations = Angle.smoothRotations(currentTarget, currentRotations);
-                event.setYaw(currentRotations.getYaw());
-                event.setPitch(currentRotations.getPitch());
-                rotate(event);
                 break;
 
             case Jitter:
                 currentRotations = subRotations(currentTarget, currentRotations);
-
-                currentRotations.setYaw(currentRotations.getYaw() + new Random().nextInt(jitterRandomValue.getValue()));
-                currentRotations.setPitch(currentRotations.getPitch() + new Random().nextInt(jitterRandomValue.getValue()));
-
-                event.setYaw(currentRotations.getYaw());
-                event.setPitch(currentRotations.getPitch());
-                rotate(event);
+                currentRotations.setYaw(currentRotations.getYaw() + random.nextInt(jitterRandomValue.getValue()));
+                currentRotations.setPitch(currentRotations.getPitch() + random.nextInt(jitterRandomValue.getValue()));
                 break;
         }
 
-        if (distanceToEntity <= attackRange.getValue()) {
-            if (stopwatch.hasReached(Duration.ofMillis(1000 / cps.getValue()))) {
-                switch (attackMode.getValue()) {
-                    case Pre:
-                        if (event.getDirection().equals(State.Pre))
-                            Attack();
-                        break;
-                    case Post:
-                        if (event.getDirection().equals(State.Post))
-                            Attack();
-                        break;
-                    case Both:
-                        Attack();
-                        break;
-                }
-                stopwatch.reset();
-            }
+        Rotations.rotate(event, currentRotations);
+
+        if (distanceToEntity <= attackRange.getValue() && stopwatch.hasReached(Duration.ofMillis(1000 / cps.getValue()))) {
+            Attack();
+            stopwatch.reset();
         }
     }
 
@@ -130,6 +105,7 @@ public class KillAura extends Module {
 
     private void Attack() {
         switch (attackType.getValue()) {
+            default:
             case Packet:
                 mc.thePlayer.swingItem();
                 mc.getNetHandler().getNetworkManager().sendPacket(new C02PacketUseEntity(currentTarget, C02PacketUseEntity.Action.ATTACK));
@@ -155,6 +131,7 @@ public class KillAura extends Module {
 
     private Rotations subRotations(EntityLivingBase currentTarget, Rotations currentRotations) {
         switch (subRotations.getValue()) {
+            default:
             case Normal:
                 currentRotations = Angle.calcRotationToEntity(currentTarget);
                 break;
@@ -165,17 +142,7 @@ public class KillAura extends Module {
         return currentRotations;
     }
 
-    private void rotate(MotionEvent event) {
-        event.setYaw(currentRotations.getYaw());
-        event.setPitch(currentRotations.getPitch());
-
-        mc.thePlayer.rotationPitchHead = currentRotations.getPitch();
-        mc.thePlayer.rotationYawHead = currentRotations.getYaw();
-        mc.thePlayer.renderYawOffset = currentRotations.getYaw();
-    }
-
-    private enum RotsModes {Normal, Smooth, Jitter, Testing}
-    private enum subRotsModes {Normal, Smooth}
-    private enum AttackMode {Pre, Post, Both}
-    private enum AttackType {Player, Packet}
+    private enum RotsModes { Normal, Smooth, Jitter, Testing }
+    private enum subRotsModes { Normal, Smooth }
+    private enum AttackType { Player, Packet }
 }

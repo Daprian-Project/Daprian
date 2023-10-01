@@ -2,7 +2,9 @@ package project.daprian.client.gui.dropdown.component;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
+import lombok.Getter;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.FontRenderer;
@@ -14,25 +16,32 @@ import project.daprian.systems.module.Module;
 
 public class Frame {
 
-	public ArrayList<Component> components;
-	public Category category;
+	@Getter
+	private final List<Component> components;
+	private final Category category;
+	@Getter
 	private boolean open;
+	@Getter
 	private int width;
+	@Getter
 	private int y;
+	@Getter
 	private int x;
 	public int tY;
 	private int barHeight;
+	private int compHeight;
 	private boolean isDragging;
 	public int dragX;
 	public int dragY;
 	
 	public Frame(Category cat) {
-		this.components = new ArrayList<Component>();
+		this.components = new ArrayList<>();
 		this.category = cat;
-		this.width = 115;
+		this.width = 125;
 		this.x = 5;
 		this.y = 5;
-		this.barHeight = 16;
+		this.barHeight = 18;
+		this.compHeight = 16;
 		this.dragX = 0;
 		this.open = false;
 		this.isDragging = false;
@@ -41,16 +50,12 @@ public class Frame {
 		for(Module mod : Main.getInstance().getModuleManager().getModuleHashMap().values()) {
 			if (mod.getCategory() != cat) continue;
 
-			Button modButton = new Button(mod, this, tY);
+			Button modButton = new Button(width, compHeight, mod, this, tY);
 			this.components.add(modButton);
 			tY += modButton.getHeight();
 		}
 	}
-	
-	public ArrayList<Component> getComponents() {
-		return components;
-	}
-	
+
 	public void setX(int newX) {
 		this.x = newX;
 	}
@@ -62,58 +67,41 @@ public class Frame {
 	public void setDrag(boolean drag) {
 		this.isDragging = drag;
 	}
-	
-	public boolean isOpen() {
-		return open;
-	}
-	
+
 	public void setOpen(boolean open) {
 		this.open = open;
 	}
 	
 	public void renderFrame(FontRenderer fontRenderer) {
-
 		this.refresh();
 
 		Gui.drawRect(this.x, this.y, this.x + this.width, this.y + this.barHeight, new Color(32, 32, 32).getRGB());
+
 		GL11.glPushMatrix();
-		fontRenderer.drawString(this.category.name(), (this.x + 2) + 2, (this.y + 5), -1);
-		fontRenderer.drawString(this.open ? "-" : "+", (this.x + this.width - 10), (this.y + 5), -1);
+		 fontRenderer.drawString(this.category.name(), (this.x + 2) + 2, (this.y + 5), -1);
+		 fontRenderer.drawString(this.open ? "-" : "+", (this.x + this.width - 10), (this.y + 5), -1);
 		GL11.glPopMatrix();
-		if(this.open) {
-			if(!this.components.isEmpty()) {
-				for(Component component : components) {
-					component.renderComponent(fontRenderer);
-				}
+
+		if (this.open && (!this.components.isEmpty())) {
+			for (Component component : components) {
+				component.renderComponent(fontRenderer);
 			}
+
 		}
 	}
 
 	public void refresh() {
-		tY = components.size() * 14 + this.barHeight;
+		tY = components.size() * compHeight + this.barHeight;
 		int off = this.barHeight;
 		for(Component comp : components) {
 			comp.setOff(off);
 			off += comp.getHeight();
 		}
 	}
-	
-	public int getX() {
-		return x;
-	}
-	
-	public int getY() {
-		return y;
-	}
-	
-	public int getWidth() {
-		return width;
-	}
 
 	public void setWidth(int width) {
 		this.width = width;
 	}
-
 
 	public void updatePosition(int mouseX, int mouseY) {
 		if(this.isDragging) {

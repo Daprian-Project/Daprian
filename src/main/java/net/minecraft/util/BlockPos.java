@@ -321,6 +321,10 @@ public class BlockPos extends Vec3i
         };
     }
 
+    public Vec3 toVector() {
+        return new Vec3(getX(), getY(), getZ());
+    }
+
     public static final class MutableBlockPos extends BlockPos
     {
         private int x;

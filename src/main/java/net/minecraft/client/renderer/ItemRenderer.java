@@ -32,7 +32,7 @@ import net.optifine.reflect.Reflector;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import project.daprian.client.Main;
-import project.daprian.client.modules.KillAura;
+import project.daprian.client.modules.combat.KillAura;
 
 public class
 ItemRenderer

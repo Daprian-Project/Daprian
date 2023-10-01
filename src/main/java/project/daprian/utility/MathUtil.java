@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class MathUtil {
+    public static boolean endsWithDigit(int number, int digit) {
+        int lastDigit = number % 10;
+        return lastDigit == digit;
+    }
+
     public static int getDecimalPlaces(double number) {
         String numberStr = Double.toString(number);
         int decimalIndex = numberStr.indexOf('.');

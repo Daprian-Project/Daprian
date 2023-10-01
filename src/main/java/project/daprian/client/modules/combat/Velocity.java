@@ -1,7 +1,9 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.combat;
 
 import io.github.nevalackin.radbus.Listen;
+import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.util.Vec3;
 import project.daprian.client.Main;
 import project.daprian.client.events.MotionEvent;
 import project.daprian.client.events.PacketEvent;
@@ -26,15 +28,21 @@ public class Velocity extends Module {
         setting.setVisible(() -> mode.getValue().equals(Mode.Random));
     });
 
+    private Vec3 lastPosition;
+    private boolean velocityTaken;
+    private int velocityTicks;
+
     @Listen
     public void onPacket(PacketEvent event) {
-        setSuffix(() -> String.format("%s (%s)", mode.getValue().name(), mc.thePlayer.hurtTime));
+        setSuffix(() -> String.format("%s", mode.getValue().name()));
 
         if (event.getPacket() instanceof S12PacketEntityVelocity) {
             S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
 
             if (packet.getEntityID() != mc.thePlayer.getEntityId())
                 return;
+
+            velocityTaken = true;
 
             if (horizontal.getValue() == 0 && vertical.getValue() == 0) {
                 event.Cancel();
@@ -57,8 +65,45 @@ public class Velocity extends Module {
         }
     }
 
+    @Listen
+    public void onMotion(MotionEvent event) {
+        if (velocityTaken) {
+            velocityTicks++;
+
+            if (velocityTicks >= 30) {
+                velocityTaken = false;
+                velocityTicks = 0;
+            }
+        }
+
+        if (mode.getValue().equals(Mode.Back)) {
+            if (!velocityTaken) {
+                lastPosition = mc.thePlayer.getPosition().toVector();
+                return;
+            }
+
+            double x = lastPosition.x;
+            double y = lastPosition.y;
+            double z = lastPosition.z;
+
+            if (MathUtil.endsWithDigit(velocityTicks, 5) && velocityTicks < 25) {
+                System.out.println("Sent");
+                mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer(true));
+                mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(x, y, z, false));
+            }
+
+            if (velocityTicks != 29) return;
+
+            event.setX(x);
+            event.setY(y);
+            event.setZ(z);
+            mc.thePlayer.setPositionAndUpdate(x, y, z);
+        }
+    }
+
     private enum Mode {
         Simple,
-        Random
+        Random,
+        Back
     }
 }

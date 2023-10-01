@@ -217,4 +217,24 @@ public class RenderUtil  {
             }
         }
     }
+
+    public static boolean containsIgnoreCase(String mainString, String subString) {
+        if (mainString == null || subString == null) {
+            return false;
+        }
+
+        int length = subString.length();
+        if (length == 0) {
+            return true;
+        }
+
+        int limit = mainString.length() - length;
+        for (int i = 0; i <= limit; i++) {
+            if (mainString.regionMatches(true, i, subString, 0, length)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

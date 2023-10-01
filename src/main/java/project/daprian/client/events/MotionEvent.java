@@ -3,6 +3,7 @@ package project.daprian.client.events;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.util.Vec3;
 import project.daprian.systems.event.Event;
 import project.daprian.systems.event.State;
 

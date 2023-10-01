@@ -1,14 +1,21 @@
 package net.minecraft.network.play.client;
 
 import java.io.IOException;
+
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayServer;
 
 public class C03PacketPlayer implements Packet<INetHandlerPlayServer>
 {
+
+    @Setter @Getter
     protected double x;
+    @Setter @Getter
     protected double y;
+    @Setter @Getter
     protected double z;
     protected float yaw;
     protected float pitch;

@@ -1,4 +1,4 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.player;
 
 import io.github.nevalackin.radbus.Listen;
 import net.minecraft.init.Items;
@@ -12,7 +12,7 @@ import project.daprian.utility.TimeUtil;
 
 import java.time.Duration;
 
-@Module.Info(name = "ChestStealer",category = Category.Player,description = "Chest stealer?",bindable = true)
+@Module.Info(name = "ChestStealer", category = Category.Player, description = "Chest stealer?", bindable = true)
 public class ChestStealer extends Module{
 
     private final Setting<Integer> delay = Setting.create(settings -> settings.setValues("Delay", 0, 0, 500, 1));
@@ -20,7 +20,8 @@ public class ChestStealer extends Module{
     TimeUtil timer = new TimeUtil();
 
     @Listen
-    public void onUpdate(UpdateEvent event){
+    public void onUpdate(UpdateEvent event) {
+        setSuffix(() -> delay.getValue().toString());
         if (mc.thePlayer.openContainer != null && (mc.thePlayer.openContainer instanceof ContainerChest)) {
             ContainerChest container = (ContainerChest) mc.thePlayer.openContainer;
             for (int i = 0; i < container.getLowerChestInventory().getSizeInventory(); i++) {
@@ -34,9 +35,7 @@ public class ChestStealer extends Module{
                 if (isChestEmpty(container) && autoClose.getValue()) {
                     mc.thePlayer.closeScreen();
                 }
-
             }
-
         }
     }
 

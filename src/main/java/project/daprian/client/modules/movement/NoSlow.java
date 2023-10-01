@@ -1,4 +1,4 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.movement;
 
 import io.github.nevalackin.radbus.Listen;
 import net.minecraft.item.ItemSword;
@@ -16,7 +16,7 @@ import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;
 import project.daprian.systems.setting.Setting;
 
-@Module.Info(name = "NoSlow", category = Category.Movement,description = "blocking and walking", bindable = true)
+@Module.Info(name = "NoSlow", category = Category.Movement, description = "blocking and walking", bindable = true)
 public class NoSlow extends Module {
 
     Setting<Modes> modes = Setting.create(modesSettingBuilder -> modesSettingBuilder.setValues("Modes", Modes.Vanilla));
@@ -36,6 +36,7 @@ public class NoSlow extends Module {
     }
     @Listen
     public void onMotion(MotionEvent event){
+        setSuffix(() -> modes.getValue().name());
         if (!mc.thePlayer.isUsingItem() || !(mc.thePlayer.getHeldItem().getItem() instanceof ItemSword)) return;
         switch (modes.getValue()){
 

@@ -32,7 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import project.daprian.client.Main;
-import project.daprian.client.modules.Chams;
+import project.daprian.client.modules.render.Chams;
 
 public abstract class RendererLivingEntity<T extends EntityLivingBase> extends Render<T>
 {

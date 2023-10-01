@@ -2,9 +2,10 @@ package project.daprian.client.gui.dropdown.component.components;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.gui.FontRenderer;
 import org.lwjgl.opengl.GL11;
 
@@ -28,13 +29,17 @@ public class Button extends Component {
 	public boolean open;
 	private final int height;
 
-	public Button(Module mod, Frame parent, int offset) {
+	@Getter @Setter
+	private boolean visible;
+
+	public Button(int width, int height, Module mod, Frame parent, int offset) {
+		super(width, height);
 		this.mod = mod;
 		this.parent = parent;
 		this.offset = offset;
 		this.subcomponents = new ArrayList<>();
 		this.open = false;
-		height = 14;
+		this.height = height;
 
 		for (Setting<?> setting : mod.getSettings()) {
 			if (setting.getValue() instanceof Boolean)
@@ -53,13 +58,20 @@ public class Button extends Component {
 	@Override
 	public void setOff(int newOff) {
 		int kekY = 0;
-		for(SetComp<?> comp : openComps()) {
+		for (SetComp<?> comp : openComps()) {
 			kekY += comp.getHeight();
 		}
-		if(this.open) parent.tY = parent.tY + kekY;
-		offset = newOff;
+
+		if (this.open) {
+			parent.tY = parent.tY + kekY;
+		}
+
+		if (visible) {
+			offset = newOff;
+		}
+
 		int opY = offset + height;
-		for(SetComp<?> comp : this.openComps()) {
+		for (SetComp<?> comp : this.openComps()) {
 			comp.setOff(opY);
 			opY += comp.getHeight();
 		}
@@ -67,19 +79,21 @@ public class Button extends Component {
 
 	@Override
 	public void renderComponent(FontRenderer fr) {
-		Gui.drawRect(parent.getX(), this.parent.getY() + this.offset, parent.getX() + parent.getWidth(), this.parent.getY() + 14 + this.offset, this.mod.isEnabled() ? new Color(28,28,28).getRGB() : new Color(24,24,24).getRGB());
+		if (open && !isVisible()) open = false;
+
+		if (!isVisible()) return;
+
+		Gui.drawRect(parent.getX(), this.parent.getY() + this.offset, parent.getX() + parent.getWidth(), this.parent.getY() + height + this.offset, this.mod.isEnabled() ? new Color(28, 28, 28).getRGB() : new Color(24, 24, 24).getRGB());
 
 		GL11.glPushMatrix();
-		fr.drawString(this.mod.getName(), (parent.getX() + (isHovered ? 5  : 3)), (parent.getY() + offset + 4), -1);
-		if(this.subcomponents.size() > 2)
+		fr.drawString(this.mod.getName(), (parent.getX() + (isHovered ? 5 : 3)), (parent.getY() + offset + 4), -1);
+		if (this.subcomponents.size() > 2)
 			fr.drawString(this.open ? "-" : "+", (parent.getX() + parent.getWidth() - (this.open ? 8.5f : 10)), (parent.getY() + offset + 4), -1);
 		GL11.glPopMatrix();
 
-		if(this.open) {
-			if(!this.subcomponents.isEmpty()) {
-				for(SetComp<?> comp : openComps()) {
-					comp.renderComponent(fr);
-				}
+		if (this.open && (!this.subcomponents.isEmpty())) {
+			for (SetComp<?> comp : openComps()) {
+				comp.renderComponent(fr);
 			}
 		}
 	}
@@ -98,25 +112,29 @@ public class Button extends Component {
 
 	@Override
 	public void updateComponent(int mouseX, int mouseY) {
+		if (!isVisible()) return;
+
 		this.isHovered = isMouseOnButton(mouseX, mouseY);
-		if(!this.subcomponents.isEmpty()) {
-			if(!this.openComps().isEmpty()){
-				for (SetComp<?> comp : this.openComps()) {
-					comp.updateComponent(mouseX, mouseY);
-				}
+		if (!this.subcomponents.isEmpty() && (!this.openComps().isEmpty())) {
+			for (SetComp<?> comp : this.openComps()) {
+				comp.updateComponent(mouseX, mouseY);
 			}
 		}
 	}
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int button) {
+		if (!isVisible()) return;
+
 		if(isMouseOnButton(mouseX, mouseY) && button == 0) {
 			this.mod.Toggle();
 		}
-		if(isMouseOnButton(mouseX, mouseY) && button == 1) {
+
+		if(isMouseOnButton(mouseX, mouseY) && !mod.getSettings().isEmpty() && button == 1) {
 			this.open = !this.open;
 			this.parent.refresh();
 		}
+
 		for(SetComp<?> comp : this.subcomponents) {
 			comp.mouseClicked(mouseX, mouseY, button);
 		}
@@ -124,6 +142,8 @@ public class Button extends Component {
 
 	@Override
 	public void mouseReleased(int mouseX, int mouseY, int mouseButton) {
+		if (!isVisible()) return;
+
 		for(SetComp<?> comp : this.subcomponents) {
 			comp.mouseReleased(mouseX, mouseY, mouseButton);
 		}
@@ -131,6 +151,8 @@ public class Button extends Component {
 
 	@Override
 	public void keyTyped(char typedChar, int key) {
+		if (!isVisible()) return;
+
 		for(SetComp<?> comp : this.subcomponents) {
 			comp.keyTyped(typedChar, key);
 		}
@@ -140,15 +162,13 @@ public class Button extends Component {
         return x > parent.getX() && x < parent.getX() + parent.getWidth() && y > this.parent.getY() + this.offset && y < this.parent.getY() + 14 + this.offset;
     }
 
-	public ArrayList<SetComp<?>> openComps() {
-		ArrayList<SetComp<?>> open = new ArrayList<>();
+	public List<SetComp<?>> openComps() {
+		ArrayList<SetComp<?>> openComponents = new ArrayList<>();
 		for(SetComp<?> comp : subcomponents) {
-			if(comp.getSetting() == null) {
-				open.add(comp);
-			} else if (comp.getSetting().getVisible().get()) {
-				open.add(comp);
+			if(comp.getSetting() == null || Boolean.TRUE.equals(comp.getSetting().getVisible().get())) {
+				openComponents.add(comp);
 			}
 		}
-		return open;
+		return openComponents;
 	}
 }

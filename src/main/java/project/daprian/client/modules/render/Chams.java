@@ -1,4 +1,4 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.render;
 
 import project.daprian.systems.module.Category;
 import project.daprian.systems.module.Module;

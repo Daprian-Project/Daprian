@@ -21,6 +21,7 @@ public class SetComp<T> extends Component {
     protected int y;
 
     public SetComp(Setting<T> setting, Button parent) {
+        super(parent.getWidth(), 16);
         this.parent = parent;
         this.setting = setting;
     }
@@ -28,11 +29,6 @@ public class SetComp<T> extends Component {
     @Override
     public void setOff(int newOff) {
         this.offset = newOff;
-    }
-
-    @Override
-    public int getHeight() {
-        return 13;
     }
 
     public boolean isMouseOnButton(int x, int y) {

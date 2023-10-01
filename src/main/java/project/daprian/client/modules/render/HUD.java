@@ -1,4 +1,4 @@
-package project.daprian.client.modules;
+package project.daprian.client.modules.render;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import io.github.nevalackin.radbus.Listen;
@@ -64,7 +64,7 @@ public class HUD extends Module {
         float posY = sr.getScaledHeight() - posYOffset;
 
         fr.drawStringWithShadow(String.format("FPS %s", Minecraft.getDebugFPS()), posX, posY - 7.5 - posYOffset, -1);
-        fr.drawStringWithShadow(String.format("Speed %s", MathUtil.roundDecimalPlaces(MovementUtil.getSpeed(), -9)), posX, posY - 5, -1);
+        fr.drawStringWithShadow(String.format("Speed %s", MathUtil.roundDecimalPlaces(MovementUtil.getSpeed(), 3)), posX, posY - 5, -1);
     }
 
     private void drawWatermark() {
@@ -86,7 +86,7 @@ public class HUD extends Module {
         CBFontRenderer fr = Main.getInstance().getFontManager().getMinecraft();
 
         Main.getInstance().getModuleManager().getModuleHashMap().values().stream().sorted(Comparator.comparing(m -> fr.getStringWidth(((Module) m).getDisplayName(lowerCase.getValue()))).reversed()).forEach(module -> {
-            if (!module.isEnabled()) return;
+            if (!module.isEnabled() || module instanceof VanillaTweaks) return;
             String moduleName = module.getDisplayName(lowerCase.getValue());
             float stringWidth = fr.getStringWidth(moduleName);
             float stringHeight = fr.getHeight();

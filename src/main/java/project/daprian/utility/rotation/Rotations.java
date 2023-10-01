@@ -2,6 +2,7 @@ package project.daprian.utility.rotation;
 
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import project.daprian.client.events.MotionEvent;
 
 // Credits to a open source base client
 @Getter
@@ -34,5 +35,14 @@ public class Rotations {
 
     public static float getGCD() {
         return (float) (Math.pow(Minecraft.getMinecraft().gameSettings.mouseSensitivity * 0.6 + 0.2, 3) * 1.2);
+    }
+
+    public static void rotate(MotionEvent event, Rotations rotations) {
+        event.setYaw(rotations.getYaw());
+        event.setPitch(rotations.getPitch());
+
+        Minecraft.getMinecraft().thePlayer.rotationPitchHead = rotations.getPitch();
+        Minecraft.getMinecraft().thePlayer.rotationYawHead = rotations.getYaw();
+        Minecraft.getMinecraft().thePlayer.renderYawOffset = rotations.getYaw();
     }
 }
